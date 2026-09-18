@@ -1,0 +1,136 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getLangFromUrl, useTranslations, localizePath } from '../i18n/ui';
+import { site, absoluteUrl } from '../utils/site';
+
+interface Props {
+  /** Page title. The brand name is appended automatically when absent. */
+  title: string;
+  description: string;
+  /** Locale-agnostic path of this page, e.g. '/rail/136re'. */
+  path: string;
+  ogImage?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  path,
+  ogImage = '/images/og-default.jpg',
+  ogType = 'website',
+  noindex = false,
+} = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const fullTitle = title.includes(site.name) ? title : `${title} | ${site.name}`;
+
+const canonical = absoluteUrl(localizePath(path, lang));
+const enUrl = absoluteUrl(localizePath(path, 'en'));
+const esUrl = absoluteUrl(localizePath(path, 'es'));
+const ogImageUrl = absoluteUrl(ogImage);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#14181b" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="es" href={esUrl} />
+    <link rel="alternate" hreflang="x-default" href={enUrl} />
+
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.nameUpper} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:locale" content={lang === 'es' ? 'es_ES' : 'en_US'} />
+    <meta property="og:locale:alternate" content={lang === 'es' ? 'en_US' : 'es_ES'} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- Archivo — one neutral grotesque for the whole site, as the major steel producers do -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <slot name="head" />
+  </head>
+
+  <body>
+    <a
+      href="#main"
+      class="sr-only-focusable fixed left-4 top-4 z-[70] bg-ink-900 px-4 py-2 text-sm font-semibold text-white"
+    >
+      {t('nav.skipToContent')}
+    </a>
+
+    <Header lang={lang} path={path} />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer lang={lang} />
+
+    <script>
+      /**
+       * Hover-reveal panels (`.reveal-group`) open on hover for pointer devices
+       * and on tap for touch devices. The panels are authored open so that they
+       * stay readable without JavaScript; this script turns them into compact,
+       * tappable rows only once it is running.
+       */
+      if (!window.matchMedia('(hover: hover) and (min-width: 64rem)').matches) {
+        document.documentElement.classList.add('reveal-tap');
+
+        document.querySelectorAll<HTMLElement>('.reveal-group').forEach((group) => {
+          if (!group.querySelector('.reveal')) return;
+
+          group.setAttribute('role', 'button');
+          group.setAttribute('tabindex', '0');
+          group.setAttribute('aria-expanded', 'false');
+
+          const toggle = () => {
+            const open = group.classList.toggle('is-open');
+            group.setAttribute('aria-expanded', open ? 'true' : 'false');
+          };
+
+          group.addEventListener('click', toggle);
+          group.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              toggle();
+            }
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

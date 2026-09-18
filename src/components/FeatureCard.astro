@@ -1,0 +1,52 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from './icons';
+
+interface Props {
+  icon: IconName;
+  /** Optional sheet index, e.g. "01". */
+  index?: string;
+  title: string;
+  description?: string;
+  href?: string;
+  /** 'plain' removes the border (for use inside an existing panel). */
+  variant?: 'card' | 'plain';
+  class?: string;
+}
+
+const {
+  icon,
+  index,
+  title,
+  description,
+  href,
+  variant = 'card',
+  class: className = '',
+} = Astro.props;
+const isPlain = variant === 'plain';
+---
+
+<li class:list={['group flex flex-col', !isPlain && 'card card-hover p-5', className]}>
+  <div class="flex items-center justify-between">
+    <span
+      class="inline-flex h-9 w-9 items-center justify-center border border-steel-200 text-ink-700"
+    >
+      <Icon name={icon} size={18} />
+    </span>
+    {index && <span class="text-[10px] tracking-[0.18em] text-steel-400">{index}</span>}
+  </div>
+
+  <h3 class="mt-4 text-[15px] font-semibold text-ink-900">
+    {
+      href ? (
+        <a href={href} class="text-ink-900 hover:text-accent-600">
+          {title}
+        </a>
+      ) : (
+        title
+      )
+    }
+  </h3>
+
+  {description && <p class="mt-1.5 text-[13px] leading-relaxed text-steel-600">{description}</p>}
+</li>

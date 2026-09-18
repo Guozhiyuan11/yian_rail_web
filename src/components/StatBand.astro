@@ -1,0 +1,54 @@
+---
+export interface Stat {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  stats: Stat[];
+  variant?: 'dark' | 'light';
+}
+
+const { stats, variant = 'dark' } = Astro.props;
+const isDark = variant === 'dark';
+---
+
+<section
+  class:list={[isDark ? 'bg-ink-950 text-white' : 'border-y border-steel-200 bg-white']}
+  aria-label={stats.map((s) => s.label).join(', ')}
+>
+  <div class="container-x">
+    <ul class="grid grid-cols-2 lg:grid-cols-4">
+      {
+        stats.map((stat, i) => (
+          <li
+            class:list={[
+              'border-b py-9 lg:border-b-0 lg:py-14',
+              isDark ? 'border-white/12' : 'border-steel-200',
+              i % 2 === 1 && 'border-l pl-5 sm:pl-8',
+              i > 1 && 'lg:border-l lg:pl-8',
+              i % 2 === 0 && 'pr-5 sm:pr-8',
+            ]}
+          >
+            <span
+              class:list={[
+                'block text-[2.25rem] leading-none font-semibold tabular-nums sm:text-[2.75rem] lg:text-[3.25rem]',
+                isDark ? 'text-white' : 'text-ink-900',
+              ]}
+            >
+              {stat.value}
+            </span>
+            <span
+              class:list={[
+                'mt-4 block text-[11px] leading-snug tracking-[0.16em] uppercase',
+                isDark ? 'text-steel-400' : 'text-steel-500',
+              ]}
+            >
+              {stat.label}
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

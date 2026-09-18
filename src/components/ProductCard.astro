@@ -1,0 +1,95 @@
+---
+import type { RailProduct } from '../data/rails';
+import { useTranslations, localizePath, type Lang } from '../i18n/ui';
+import { productTagline, standardLabel } from '../utils/product';
+import Media from './Media.astro';
+
+interface Props {
+  product: RailProduct;
+  lang: Lang;
+  /** Adds a compact "Request Quote" button next to "View Details". */
+  showQuote?: boolean;
+  class?: string;
+}
+
+const { product, lang, showQuote = true, class: className = '' } = Astro.props;
+const t = useTranslations(lang);
+
+const detailHref = localizePath(`/rail/${product.slug}`, lang);
+const quoteHref = `${localizePath('/contact', lang)}?rail=${product.slug}`;
+const tagline = productTagline(product, t);
+const standard = standardLabel(product, t);
+---
+
+<article
+  class:list={[
+    'group flex flex-col border border-steel-200 bg-white transition-colors hover:border-ink-400',
+    className,
+  ]}
+>
+  <!-- Cross-section drawing on a drawing-sheet background -->
+  <a
+    href={detailHref}
+    class="block border-b border-steel-200 bg-white"
+    tabindex="-1"
+    aria-hidden="true"
+  >
+    <Media
+      src={product.coverImage}
+      alt={product.name}
+      aspect="aspect-[4/3]"
+      icon="railSection"
+      fit="contain"
+      imgClass="p-5"
+    />
+  </a>
+
+  <div class="flex flex-1 flex-col p-4">
+    <div class="flex items-baseline justify-between gap-3">
+      <h3 class="text-[15px] font-semibold text-ink-900" translate="no">
+        <a href={detailHref} class="text-ink-900 hover:text-accent-600">{product.name}</a>
+      </h3>
+      {
+        standard && (
+          <span class="tag" translate="no">
+            {standard}
+          </span>
+        )
+      }
+    </div>
+
+    {
+      tagline && (
+        <p class="mt-2 text-[10px] uppercase tracking-[0.1em] text-steel-500" translate="no">
+          {tagline}
+        </p>
+      )
+    }
+
+    <div class="mt-3 border-t border-steel-100 pt-3">
+      <span class="spec-label">{t('detail.spec.unitWeight')}</span>
+      <p
+        class:list={[
+          'spec-value mt-0.5',
+          !product.unitWeight && 'font-normal italic text-steel-400',
+        ]}
+        translate="no"
+      >
+        {product.unitWeight ?? '—'}
+      </p>
+    </div>
+
+    <div class:list={['mt-auto flex gap-2 pt-4', !showQuote && 'flex-col']}>
+      <a href={detailHref} class:list={['btn-outline flex-1 px-3', !showQuote && 'w-full']}>
+        {t('cta.viewDetails')}
+      </a>
+      {
+        showQuote && (
+          <a href={quoteHref} class="btn-primary flex-1 px-3">
+            {t('cta.requestShort')}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</article>

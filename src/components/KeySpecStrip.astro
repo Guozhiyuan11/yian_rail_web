@@ -1,0 +1,28 @@
+---
+interface KeySpec {
+  label: string;
+  value: string | null;
+}
+
+interface Props {
+  items: KeySpec[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="grid grid-cols-2 gap-px border border-steel-200 bg-steel-200 sm:grid-cols-4">
+  {
+    items.map((item) => (
+      <li class="bg-white px-4 py-3">
+        <span class="spec-label block">{item.label}</span>
+        <span
+          class:list={['spec-value mt-1.5 block', !item.value && 'text-steel-400']}
+          translate="no"
+        >
+          {item.value ?? '—'}
+        </span>
+      </li>
+    ))
+  }
+</ul>

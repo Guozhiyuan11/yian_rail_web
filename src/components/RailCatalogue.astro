@@ -1,0 +1,88 @@
+---
+import type { RailProduct } from '../data/rails';
+import { useTranslations, localizePath, type Lang } from '../i18n/ui';
+import { applicationLabels, standardLabel } from '../utils/product';
+import Icon from './Icon.astro';
+
+interface Props {
+  products: RailProduct[];
+  lang: Lang;
+  /** Column labels — passed in so the listing page can reuse the component. */
+  showHeader?: boolean;
+  /**
+   * Extra data-* attributes per row, so the listing page can drive its
+   * client-side filter over the same markup.
+   */
+  dataAttrs?: (product: RailProduct, index: number) => Record<string, string>;
+  /** id for the <ul>, so a page can target it from a client script. */
+  listId?: string;
+}
+
+const { products, lang, showHeader = false, dataAttrs, listId } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<div class="overflow-x-auto">
+  <ul id={listId} class="min-w-[36rem] border-t border-ink-900">
+    {
+      showHeader && (
+        <li class="hidden grid-cols-[5.5rem_minmax(0,1fr)_7rem_8rem_1.5rem] items-center gap-6 py-3 lg:grid">
+          <span />
+          <span class="spec-label">{t('detail.spec.railProfile')}</span>
+          <span class="spec-label">{t('detail.spec.standard')}</span>
+          <span class="spec-label">{t('detail.spec.unitWeight')}</span>
+          <span />
+        </li>
+      )
+    }
+
+    {
+      products.map((product, index) => {
+        const standard = standardLabel(product, t);
+        const apps = applicationLabels(product, t);
+        return (
+          <li class="border-b border-steel-200" {...(dataAttrs ? dataAttrs(product, index) : {})}>
+            <a
+              href={localizePath(`/rail/${product.slug}`, lang)}
+              class="grid grid-cols-[4.5rem_minmax(0,1fr)_1.5rem] items-center gap-5 py-4 transition-colors hover:bg-steel-50 lg:grid-cols-[5.5rem_minmax(0,1fr)_7rem_8rem_1.5rem] lg:gap-6"
+            >
+              <img
+                src={product.coverImage ?? ''}
+                alt={product.name}
+                class="h-12 w-full object-contain lg:h-14"
+                loading="lazy"
+                decoding="async"
+              />
+
+              <span class="min-w-0">
+                <span class="block text-[15px] font-semibold text-ink-900" translate="no">
+                  {product.name}
+                </span>
+                <span
+                  class="mt-1 block truncate text-[11px] tracking-[0.12em] text-steel-500 uppercase"
+                  translate="no"
+                >
+                  {apps.join(' / ')}
+                </span>
+              </span>
+
+              <span class="hidden text-[13px] font-medium text-ink-800 lg:block" translate="no">
+                {standard ?? '—'}
+              </span>
+
+              <span class="hidden text-[13px] tabular-nums text-steel-600 lg:block" translate="no">
+                {product.unitWeight ?? '—'}
+              </span>
+
+              <Icon
+                name="arrowRight"
+                size={16}
+                class="justify-self-end text-steel-400 transition-colors group-hover:text-ink-900"
+              />
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</div>

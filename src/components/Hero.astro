@@ -1,0 +1,204 @@
+---
+import { useTranslations, localizePath, type Lang } from '../i18n/ui';
+import { media } from '../data/media';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const quoteHref = localizePath('/contact', lang);
+const productsHref = localizePath('/rail-products', lang);
+const projectsHref = localizePath('/projects', lang);
+
+/**
+ * One static <h1> carries the page's main heading (slide 1); later slides use
+ * <h2>, so the document still has exactly one h1.
+ */
+const slides = [
+  {
+    key: 's1',
+    image: media.hero,
+    href: productsHref,
+    cta: 'cta.viewRailProducts',
+    primary: true,
+  },
+  {
+    key: 's2',
+    image: '/images/rail-036.webp',
+    href: projectsHref,
+    cta: 'home.projects.cta',
+    primary: false,
+  },
+  {
+    key: 's3',
+    image: '/images/rail-045.webp',
+    href: projectsHref,
+    cta: 'home.projects.cta',
+    primary: false,
+  },
+  {
+    key: 's4',
+    image: '/images/rail-008.webp',
+    href: projectsHref,
+    cta: 'home.projects.cta',
+    primary: false,
+  },
+] as const;
+
+const titleClass =
+  'mt-5 max-w-4xl text-white cursor-default [text-wrap:balance] text-[1.9375rem] leading-[1.1] sm:text-[2.5rem] lg:text-[3.25rem]';
+---
+
+<section
+  class="relative isolate bg-ink-950"
+  aria-roledescription="carousel"
+  aria-label={t('hero.label')}
+>
+  <div id="hero-track" class="carousel-track">
+    {
+      slides.map((slide, i) => (
+        <article
+          class="relative isolate flex min-h-[34rem] items-end overflow-hidden lg:min-h-[44rem]"
+          aria-roledescription="slide"
+        >
+          <img
+            src={slide.image}
+            alt=""
+            class="absolute inset-0 h-full w-full object-cover"
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/20"
+            aria-hidden="true"
+          />
+          <div
+            class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-ink-950 to-transparent"
+            aria-hidden="true"
+          />
+
+          <div class="container-x relative w-full pt-24 pb-28 lg:pb-32">
+            <p class="eyebrow eyebrow-light">{t(`hero.${slide.key}.eyebrow` as never)}</p>
+
+            {/* Heading + the detail that slides out beneath it on hover */}
+            <div class="group reveal-group">
+              {i === 0 ? (
+                <h1 class={titleClass} translate="no">
+                  {t(`hero.${slide.key}.title` as never)}
+                </h1>
+              ) : (
+                <h2 class={titleClass} translate="no">
+                  {t(`hero.${slide.key}.title` as never)}
+                </h2>
+              )}
+
+              <div class="reveal">
+                <div class="reveal-inner">
+                  <p class="mt-5 max-w-2xl border-l-2 border-white/30 pl-4 text-[14px] leading-relaxed text-steel-200">
+                    {t(`hero.${slide.key}.detail` as never)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <p class="mt-6 max-w-xl text-[16px] leading-relaxed text-steel-200">
+              {t(`hero.${slide.key}.lead` as never)}
+            </p>
+
+            <div class="mt-9 flex flex-wrap items-center gap-3">
+              {slide.primary && (
+                <a href={quoteHref} class="btn-primary">
+                  {t('cta.requestQuote')}
+                </a>
+              )}
+              <a href={slide.href} class="btn-outline-light">
+                {t(slide.cta as never)}
+                <Icon name="arrowRight" size={14} />
+              </a>
+            </div>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <!-- Controls -->
+  <div class="container-x absolute inset-x-0 bottom-0 z-10">
+    <div class="flex items-end justify-between gap-6 pb-7 lg:pb-9">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-1.5" role="group" aria-label={t('hero.label')}>
+          {
+            slides.map((_, i) => (
+              <button
+                type="button"
+                data-hero-dot
+                aria-label={t('hero.goTo', { n: i + 1 })}
+                class="h-[3px] w-9 bg-white/30 transition-colors hover:bg-white/60"
+              />
+            ))
+          }
+        </div>
+        <span class="hidden text-[10px] tracking-[0.16em] text-steel-400 uppercase lg:inline">
+          {t('hero.hint')}
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          data-hero-prev
+          aria-label={t('hero.prev')}
+          class="inline-flex h-11 w-11 items-center justify-center border border-white/30 text-white transition-colors hover:border-white hover:bg-white hover:text-ink-900"
+        >
+          <Icon name="arrowRight" size={16} class="rotate-180" />
+        </button>
+        <button
+          type="button"
+          data-hero-next
+          aria-label={t('hero.next')}
+          class="inline-flex h-11 w-11 items-center justify-center border border-white/30 text-white transition-colors hover:border-white hover:bg-white hover:text-ink-900"
+        >
+          <Icon name="arrowRight" size={16} />
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const track = document.getElementById('hero-track');
+
+  if (track) {
+    const slides = Array.from(track.children) as HTMLElement[];
+    const dots = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-hero-dot]'));
+    const prev = document.querySelectorAll<HTMLButtonElement>('[data-hero-prev]');
+    const next = document.querySelectorAll<HTMLButtonElement>('[data-hero-next]');
+    let current = 0;
+
+    const goTo = (index: number) => {
+      const target = slides[(index + slides.length) % slides.length];
+      track.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
+    };
+
+    const sync = () => {
+      const width = track.clientWidth || 1;
+      current = Math.round(track.scrollLeft / width);
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('bg-white', i === current);
+        dot.classList.toggle('bg-white/30', i !== current);
+      });
+    };
+
+    prev.forEach((b) => b.addEventListener('click', () => goTo(current - 1)));
+    next.forEach((b) => b.addEventListener('click', () => goTo(current + 1)));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+
+    track.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync);
+    sync();
+  }
+</script>

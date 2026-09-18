@@ -1,0 +1,36 @@
+---
+import Breadcrumb from './Breadcrumb.astro';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  subtitle?: string;
+  eyebrow?: string;
+  /** Sheet index, e.g. "02". */
+  index?: string;
+  breadcrumbs: { label: string; href?: string }[];
+}
+
+const { lang, title, subtitle, eyebrow, index, breadcrumbs } = Astro.props;
+const hasLabel = Boolean(eyebrow || index);
+---
+
+<section class="border-b border-ink-800 bg-ink-900">
+  <div class="container-x py-8 sm:py-10 lg:py-14">
+    <Breadcrumb items={breadcrumbs} lang={lang} variant="light" />
+
+    <div class="mt-6 max-w-3xl">
+      {
+        hasLabel && (
+          <p class="eyebrow eyebrow-light">
+            {index && <span class="text-steel-400">{index}</span>}
+            {eyebrow}
+          </p>
+        )
+      }
+      <h1 class:list={['text-white', hasLabel && 'mt-4']}>{title}</h1>
+      {subtitle && <p class="mt-4 text-[15px] leading-relaxed text-steel-300">{subtitle}</p>}
+    </div>
+  </div>
+</section>

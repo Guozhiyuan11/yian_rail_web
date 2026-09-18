@@ -1,0 +1,46 @@
+---
+interface Props {
+  image: string;
+  alt: string;
+  eyebrow?: string;
+  title: string;
+  text?: string;
+  /** Height of the band. */
+  size?: 'md' | 'lg';
+  class?: string;
+}
+
+const { image, alt, eyebrow, title, text, size = 'md', class: className = '' } = Astro.props;
+---
+
+<section class:list={['relative isolate overflow-hidden bg-ink-950', className]}>
+  <img
+    src={image}
+    alt={alt}
+    class="absolute inset-0 h-full w-full object-cover opacity-65"
+    loading="lazy"
+    decoding="async"
+  />
+  <!-- Scrim: keeps the type legible without flattening the photograph. -->
+  <div
+    class="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/75 to-ink-950/25"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div
+    class:list={[
+      'container-x relative flex items-end',
+      size === 'lg'
+        ? 'min-h-[30rem] py-14 lg:min-h-[38rem]'
+        : 'min-h-[24rem] py-12 lg:min-h-[30rem]',
+    ]}
+  >
+    <div class="max-w-2xl">
+      {eyebrow && <p class="eyebrow eyebrow-light">{eyebrow}</p>}
+      <h2 class:list={['text-white', eyebrow && 'mt-5']}>{title}</h2>
+      {text && <p class="mt-5 max-w-xl text-[15px] leading-relaxed text-steel-200">{text}</p>}
+      <slot />
+    </div>
+  </div>
+</section>

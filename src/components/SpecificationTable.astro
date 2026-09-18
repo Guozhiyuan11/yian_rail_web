@@ -1,0 +1,36 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+import { isDev } from '../utils/site';
+import type { SpecRow } from '../utils/product';
+
+interface Props {
+  rows: SpecRow[];
+  lang: Lang;
+  caption?: string;
+}
+
+const { rows, lang, caption } = Astro.props;
+const t = useTranslations(lang);
+
+// In production, unverified rows are hidden entirely. In development they are
+// shown with a quiet marker so the skeleton is easy to review.
+const visibleRows = rows.filter((row) => row.value !== null || isDev);
+---
+
+<dl class="border-t border-steel-200">
+  {
+    visibleRows.map((row) => (
+      <div class="grid grid-cols-1 gap-1 border-b border-steel-200 py-2.5 sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)] sm:items-baseline sm:gap-6">
+        <dt class="spec-label">{row.label}</dt>
+        <dd
+          class:list={['spec-value', !row.value && 'font-normal italic text-steel-400']}
+          translate="no"
+        >
+          {row.value ?? t('common.todo')}
+        </dd>
+      </div>
+    ))
+  }
+</dl>
+
+{caption && <p class="mt-3 text-[10px] uppercase tracking-[0.1em] text-steel-500">{caption}</p>}

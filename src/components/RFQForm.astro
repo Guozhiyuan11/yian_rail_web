@@ -1,0 +1,314 @@
+---
+import { APPLICATION_KEYS, applicationLabelKey, standardLabelKey } from '../data/taxonomies';
+import { useTranslations, type Lang } from '../i18n/ui';
+import type { RailProduct } from '../data/rails';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  /** Pre-fills product + standard when the form is opened from a product page. */
+  product?: RailProduct | null;
+  title?: string;
+  subtitle?: string;
+  /** Used to namespace field ids so several forms can coexist on one page. */
+  id?: string;
+}
+
+const { lang, product = null, title, subtitle, id = 'rfq' } = Astro.props;
+const t = useTranslations(lang);
+
+const fid = (name: string) => `${id}-${name}`;
+const describedBy = (name: string) => (name ? `${fid(name)}-hint` : undefined);
+
+const units = [
+  { value: 'tons', label: t('rfq.unitTons') },
+  { value: 'meters', label: t('rfq.unitMeters') },
+  { value: 'pieces', label: t('rfq.unitPieces') },
+];
+
+const prefillProduct = product?.name ?? '';
+const prefillStandard = product?.standardKey ? t(standardLabelKey(product.standardKey)) : '';
+---
+
+<form
+  id={id}
+  class="card p-5 sm:p-7"
+  method="post"
+  action=""
+  data-pending-message={t('rfq.notice')}
+  novalidate
+>
+  {
+    title && (
+      <header class="mb-6">
+        <h2 class="text-xl font-semibold text-ink-900 sm:text-2xl">{title}</h2>
+        {subtitle && <p class="mt-2 text-sm text-steel-600">{subtitle}</p>}
+      </header>
+    )
+  }
+
+  <p class="mb-6 text-xs text-steel-500">{t('rfq.requiredNote')}</p>
+
+  <!-- 1. Rail requirement -->
+  <fieldset class="border-0 p-0">
+    <legend class="mb-5 text-[10px] font-semibold uppercase tracking-[0.16em] text-steel-500">
+      {t('rfq.section.requirement')}
+    </legend>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div class="sm:col-span-2">
+        <label class="field-label" for={fid('product')}>
+          {t('rfq.product')}
+          <span class="text-accent-600">*</span>
+        </label>
+        <input
+          id={fid('product')}
+          name="product"
+          type="text"
+          class="field-input"
+          placeholder={t('rfq.productPlaceholder')}
+          value={prefillProduct}
+          required
+          autocomplete="off"
+        />
+      </div>
+
+      <div>
+        <label class="field-label" for={fid('standard')}>{t('rfq.standard')}</label>
+        <input
+          id={fid('standard')}
+          name="standard"
+          type="text"
+          class="field-input"
+          placeholder={t('rfq.standardPlaceholder')}
+          value={prefillStandard}
+          autocomplete="off"
+        />
+      </div>
+
+      <div>
+        <label class="field-label" for={fid('specification')}>{t('rfq.specification')}</label>
+        <input
+          id={fid('specification')}
+          name="specification"
+          type="text"
+          class="field-input"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="field-label" for={fid('quantity')}>
+            {t('rfq.quantity')}
+            <span class="text-accent-600">*</span>
+          </label>
+          <input
+            id={fid('quantity')}
+            name="quantity"
+            type="text"
+            inputmode="decimal"
+            class="field-input"
+            placeholder={t('rfq.quantityPlaceholder')}
+            required
+          />
+        </div>
+        <div>
+          <label class="field-label" for={fid('unit')}>{t('rfq.unit')}</label>
+          <select id={fid('unit')} name="unit" class="field-input pr-8">
+            {units.map((unit) => <option value={unit.value}>{unit.label}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="field-label" for={fid('application')}>{t('rfq.application')}</label>
+        <select id={fid('application')} name="application" class="field-input pr-8">
+          <option value="">{t('common.all')}</option>
+          {
+            APPLICATION_KEYS.map((key) => (
+              <option value={key}>{t(applicationLabelKey(key))}</option>
+            ))
+          }
+        </select>
+      </div>
+
+      <div>
+        <label class="field-label" for={fid('destinationCountry')}>
+          {t('rfq.destinationCountry')}
+          <span class="text-accent-600">*</span>
+        </label>
+        <input
+          id={fid('destinationCountry')}
+          name="destinationCountry"
+          type="text"
+          class="field-input"
+          autocomplete="country-name"
+          required
+        />
+      </div>
+
+      <div>
+        <label class="field-label" for={fid('destinationPort')}>{t('rfq.destinationPort')}</label>
+        <input
+          id={fid('destinationPort')}
+          name="destinationPort"
+          type="text"
+          class="field-input"
+          autocomplete="off"
+        />
+      </div>
+
+      <div>
+        <label class="field-label" for={fid('deliveryDate')}>{t('rfq.deliveryDate')}</label>
+        <input
+          id={fid('deliveryDate')}
+          name="deliveryDate"
+          type="date"
+          class="field-input"
+          aria-describedby={describedBy('deliveryDate')}
+        />
+        <p id={fid('deliveryDate') + '-hint'} class="field-hint">
+          {t('common.optional')}
+        </p>
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="field-label" for={fid('technical')}>{t('rfq.technical')}</label>
+        <textarea
+          id={fid('technical')}
+          name="technical"
+          rows="4"
+          class="field-input"
+          placeholder={t('rfq.technicalPlaceholder')}></textarea>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- 2. Company & contact -->
+  <fieldset class="mt-8 border-0 border-t border-steel-200 p-0 pt-6">
+    <legend class="mb-5 text-[10px] font-semibold uppercase tracking-[0.16em] text-steel-500">
+      {t('rfq.section.company')}
+    </legend>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <label class="field-label" for={fid('company')}>{t('rfq.company')}</label>
+        <input
+          id={fid('company')}
+          name="company"
+          type="text"
+          class="field-input"
+          autocomplete="organization"
+        />
+      </div>
+
+      <div>
+        <label class="field-label" for={fid('contactPerson')}>
+          {t('rfq.contactPerson')}
+          <span class="text-accent-600">*</span>
+        </label>
+        <input
+          id={fid('contactPerson')}
+          name="contactPerson"
+          type="text"
+          class="field-input"
+          autocomplete="name"
+          required
+        />
+      </div>
+
+      <div>
+        <label class="field-label" for={fid('email')}>
+          {t('rfq.email')}
+          <span class="text-accent-600">*</span>
+        </label>
+        <input
+          id={fid('email')}
+          name="email"
+          type="email"
+          class="field-input"
+          autocomplete="email"
+          required
+        />
+      </div>
+
+      <div>
+        <label class="field-label" for={fid('phone')}>{t('rfq.phone')}</label>
+        <input id={fid('phone')} name="phone" type="tel" class="field-input" autocomplete="tel" />
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="field-label" for={fid('country')}>{t('rfq.country')}</label>
+        <input
+          id={fid('country')}
+          name="country"
+          type="text"
+          class="field-input"
+          autocomplete="country-name"
+        />
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- 3. Attachment + submit -->
+  <fieldset class="mt-8 border-0 border-t border-steel-200 p-0 pt-6">
+    <legend class="mb-5 text-[10px] font-semibold uppercase tracking-[0.16em] text-steel-500">
+      {t('rfq.section.details')}
+    </legend>
+
+    <div>
+      <label class="field-label" for={fid('attachment')}>{t('rfq.attachment')}</label>
+      <input
+        id={fid('attachment')}
+        name="attachment"
+        type="file"
+        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+        class="field-input file:mr-3 file: file:border-0 file:bg-ink-900 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
+        aria-describedby={fid('attachment') + '-hint'}
+      />
+      <p id={fid('attachment') + '-hint'} class="field-hint">{t('rfq.fileHint')}</p>
+    </div>
+
+    <!-- Captcha placeholder: wired up in the backend stage (Cloudflare Turnstile). -->
+    <div class="mt-5 flex items-center gap-3 border border-steel-200 bg-steel-50 px-4 py-3">
+      <input
+        id={fid('captcha')}
+        type="checkbox"
+        class="h-[18px] w-[18px] accent-ink-700"
+        disabled
+        aria-describedby={fid('captcha') + '-hint'}
+      />
+      <label for={fid('captcha')} class="text-sm text-steel-700">{t('rfq.captcha')}</label>
+      <span id={fid('captcha') + '-hint'} class="ml-auto text-[11px] text-steel-500">
+        {t('rfq.captchaNote')}
+      </span>
+    </div>
+
+    <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+      <button type="submit" class="btn-primary min-h-12 w-full px-6 sm:w-auto">
+        <Icon name="send" size={18} />
+        {t('rfq.submit')}
+      </button>
+      <p class="text-xs leading-relaxed text-steel-500">{t('rfq.notice')}</p>
+    </div>
+
+    <p id={fid('status')} role="status" class="mt-4 hidden text-sm font-medium text-accent-700"></p>
+  </fieldset>
+</form>
+
+<script>
+  // The RFQ backend (Cloudflare Workers + Turnstile + Resend) lands in a later
+  // stage. Until then the form validates natively and reports that submission
+  // is not yet wired up, instead of silently doing nothing.
+  document.querySelectorAll<HTMLFormElement>('form[data-pending-message]').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const target = form.querySelector<HTMLElement>('[role="status"]');
+      if (target) {
+        target.textContent = form.dataset.pendingMessage || '';
+        target.classList.remove('hidden');
+      }
+    });
+  });
+</script>

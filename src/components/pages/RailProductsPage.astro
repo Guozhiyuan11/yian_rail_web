@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../PageHeader.astro';
+import SectionHeading from '../SectionHeading.astro';
+import ProductExplorer from '../ProductExplorer.astro';
+import { STANDARD_KEYS, standardLabelKey, standardDescKey } from '../../data/taxonomies';
+import { useTranslations, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = '/rail-products';
+---
+
+<BaseLayout title={t('products.title')} description={t('products.subtitle')} path={path}>
+  <PageHeader
+    lang={lang}
+    index="01"
+    eyebrow={t('products.eyebrow')}
+    title={t('products.title')}
+    subtitle={t('products.subtitle')}
+    breadcrumbs={[{ label: t('common.home'), href: '/' }, { label: t('nav.railProducts') }]}
+  />
+
+  <!-- Rail basics -->
+  <section class="border-b border-steel-200 bg-white py-12 lg:py-16">
+    <div class="container-x">
+      <SectionHeading
+        index="01"
+        eyebrow={t('products.intro.eyebrow')}
+        title={t('products.intro.title')}
+      />
+      <div
+        class="mt-8 grid gap-8 text-[15px] leading-relaxed text-steel-700 lg:grid-cols-3 lg:gap-12"
+      >
+        <p>{t('products.intro.p1')}</p>
+        <p>{t('products.intro.p2')}</p>
+        <p>{t('products.intro.p3')}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catalogue -->
+  <section class="section">
+    <div class="container-x">
+      <ProductExplorer lang={lang} />
+    </div>
+  </section>
+
+  <!-- Standards explained -->
+  <section class="border-t border-steel-200 bg-steel-50 py-12 lg:py-16">
+    <div class="container-x">
+      <SectionHeading
+        index="02"
+        eyebrow={t('home.standards.standardsLabel')}
+        title={t('home.standards.standardsLabel')}
+        subtitle={t('home.standards.note')}
+      />
+      <ul class="mt-9 border-t border-ink-900">
+        {
+          STANDARD_KEYS.map((key) => (
+            <li class="grid gap-2 border-b border-steel-200 py-5 lg:grid-cols-[10rem_minmax(0,1fr)] lg:gap-8">
+              <span class="text-[15px] font-semibold text-ink-900" translate="no">
+                {t(standardLabelKey(key))}
+              </span>
+              <span class="text-[14px] leading-relaxed text-steel-600">
+                {t(standardDescKey(key))}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

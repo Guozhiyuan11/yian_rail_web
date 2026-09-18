@@ -1,0 +1,75 @@
+---
+import { useTranslations, localizePath, type Lang } from '../i18n/ui';
+import { absoluteUrl } from '../utils/site';
+
+interface Crumb {
+  label: string;
+  /** Locale-agnostic path, e.g. '/rail-products'. Omit on the final crumb. */
+  href?: string;
+}
+
+interface Props {
+  items: Crumb[];
+  lang: Lang;
+  /** 'light' renders for navy backgrounds. */
+  variant?: 'default' | 'light';
+}
+
+const { items, lang, variant = 'default' } = Astro.props;
+const t = useTranslations(lang);
+const isLight = variant === 'light';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    ...(item.href ? { item: absoluteUrl(localizePath(item.href, lang)) } : {}),
+  })),
+};
+---
+
+<nav aria-label={t('common.breadcrumb')}>
+  <ol
+    class:list={[
+      'flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[10px] uppercase tracking-[0.14em]',
+      isLight ? 'text-steel-400' : 'text-steel-500',
+    ]}
+  >
+    {
+      items.map((item, index) => (
+        <li class="flex items-center gap-x-2.5">
+          {item.href ? (
+            <a
+              href={localizePath(item.href, lang)}
+              class:list={[
+                'transition-colors',
+                isLight
+                  ? 'text-steel-400 hover:text-white'
+                  : 'text-steel-500 hover:text-accent-600',
+              ]}
+            >
+              {item.label}
+            </a>
+          ) : (
+            <span
+              aria-current="page"
+              class:list={['font-medium', isLight ? 'text-white' : 'text-ink-900']}
+            >
+              {item.label}
+            </span>
+          )}
+          {index < items.length - 1 && (
+            <span aria-hidden="true" class="opacity-50">
+              /
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />

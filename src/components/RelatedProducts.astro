@@ -1,0 +1,24 @@
+---
+import type { RailProduct } from '../data/rails';
+import type { Lang } from '../i18n/ui';
+import ProductCard from './ProductCard.astro';
+
+interface Props {
+  products: RailProduct[];
+  lang: Lang;
+}
+
+const { products, lang } = Astro.props;
+---
+
+{
+  products.length > 0 && (
+    <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {products.map((product) => (
+        <li class="flex w-full">
+          <ProductCard product={product} lang={lang} showQuote={false} class="w-full" />
+        </li>
+      ))}
+    </ul>
+  )
+}

@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../PageHeader.astro';
+import SectionHeading from '../SectionHeading.astro';
+import ApplicationCard from '../ApplicationCard.astro';
+import CTASection from '../CTASection.astro';
+
+import { APPLICATION_KEYS, applicationLabelKey, applicationDescKey } from '../../data/taxonomies';
+import { useTranslations, type Lang } from '../../i18n/ui';
+import { APPLICATION_ICONS } from '../../utils/product';
+import { applicationImages } from '../../data/media';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = '/applications';
+---
+
+<BaseLayout title={t('nav.applications')} description={t('home.standards.note')} path={path}>
+  <PageHeader
+    lang={lang}
+    index="04"
+    eyebrow={t('home.standards.eyebrow')}
+    title={t('nav.applications')}
+    subtitle={t('home.standards.note')}
+    breadcrumbs={[{ label: t('common.home'), href: '/' }, { label: t('nav.applications') }]}
+  />
+
+  <section class="section">
+    <div class="container-x">
+      <SectionHeading
+        index="01"
+        eyebrow={t('home.standards.eyebrow')}
+        title={t('home.standards.applicationsLabel')}
+        subtitle={t('home.standards.note')}
+      />
+      <ul class="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          APPLICATION_KEYS.map((key, i) => (
+            <ApplicationCard
+              label={t(applicationLabelKey(key))}
+              icon={APPLICATION_ICONS[key]}
+              image={applicationImages[key]}
+              description={t(applicationDescKey(key))}
+              index={String(i + 1).padStart(2, '0')}
+            />
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <CTASection lang={lang} title={t('home.finalCta.title')} text={t('home.finalCta.subtitle')} />
+</BaseLayout>

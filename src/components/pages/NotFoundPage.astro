@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../Icon.astro';
+
+import { useTranslations, localizePath, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = '/404';
+---
+
+<BaseLayout title={t('notFound.title')} description={t('notFound.text')} path={path} noindex>
+  <section class="section">
+    <div class="container-x">
+      <div class="mx-auto flex max-w-xl flex-col items-center py-10 text-center lg:py-20">
+        <span class="inline-flex h-14 w-14 items-center justify-center bg-ink-50 text-ink-700">
+          <Icon name="search" size={28} />
+        </span>
+
+        <p class="mt-6 text-xs font-semibold uppercase tracking-[0.14em] text-steel-400">404</p>
+        <h1 class="mt-3">{t('notFound.title')}</h1>
+        <p class="mt-4 text-base leading-relaxed text-steel-600">{t('notFound.text')}</p>
+
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+          <a href={localizePath('/', lang)} class="btn-primary">{t('cta.backHome')}</a>
+          <a href={localizePath('/rail-products', lang)} class="btn-outline">
+            {t('cta.viewRailProducts')}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

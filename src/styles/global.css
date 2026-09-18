@@ -1,0 +1,411 @@
+/* ==========================================================================
+   YIAN Tech Global — design tokens
+   --------------------------------------------------------------------------
+   Direction: heavy-industry corporate. Modelled on how the major steel and
+   rail producers present themselves (SSAB, voestalpine, ArcelorMittal):
+     · One neutral grotesque throughout — no display face, no monospace.
+     · Near-black graphite as the structural dark, not corporate navy.
+     · Warm-neutral greys; the page should feel like material, not like SaaS.
+     · Exactly ONE accent, burnt amber, and it appears only on the primary
+       action, the active nav item and small functional marks. Everything
+       else is greyscale so the photographs carry the colour.
+     · Zero border radius. Structure comes from 1px rules.
+   Built on Tailwind CSS v4 — tokens live in @theme and become utilities.
+   ========================================================================== */
+
+@import 'tailwindcss';
+
+@theme {
+  /* ---- Typography ------------------------------------------------------ */
+  --font-sans:
+    'Archivo', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+
+  /* ---- Ink: near-black graphite --------------------------------------- */
+  --color-ink-50: #f2f3f4;
+  --color-ink-100: #e3e5e7;
+  --color-ink-200: #c7cace;
+  --color-ink-300: #a0a5aa;
+  --color-ink-400: #6f757b;
+  --color-ink-500: #4d5358;
+  --color-ink-600: #383d42;
+  --color-ink-700: #2a2f34;
+  --color-ink-800: #1d2226;
+  --color-ink-900: #14181b;
+  --color-ink-950: #0b0e10;
+
+  /* ---- Steel: warm-neutral grey --------------------------------------- */
+  --color-steel-50: #f7f7f5;
+  --color-steel-100: #eeeeeb;
+  --color-steel-200: #dededa;
+  --color-steel-300: #c2c2bd;
+  --color-steel-400: #999993;
+  --color-steel-500: #76766f;
+  --color-steel-600: #5b5b55;
+  --color-steel-700: #42423d;
+  --color-steel-800: #2c2c28;
+
+  /* ---- Accent: deep signal red ----------------------------------------
+     Chosen against a graphite + warm-neutral base. Red carries the right
+     industrial associations (hot metal, signalling, safety) and stays
+     legible next to warm steel photography. Used on the primary action and
+     small functional marks only — never as decoration. */
+  --color-accent-100: #f7e3e4;
+  --color-accent-400: #d0454c;
+  --color-accent-500: #b21e28;
+  --color-accent-600: #8e161e;
+  --color-accent-700: #6f1117;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-white font-sans text-[15px] leading-[1.65] text-steel-700 antialiased;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-semibold text-ink-900;
+    letter-spacing: -0.018em;
+    text-wrap: balance;
+  }
+
+  /* Large, confident scale — hierarchy comes from size, not from colour. */
+  h1 {
+    @apply text-[1.875rem] leading-[1.12] sm:text-[2.25rem] lg:text-[2.75rem];
+  }
+
+  h2 {
+    @apply text-[1.5rem] leading-[1.18] sm:text-[1.75rem] lg:text-[2rem];
+  }
+
+  h3 {
+    @apply text-[1.0625rem] leading-snug sm:text-[1.125rem];
+  }
+
+  a {
+    @apply text-ink-700 transition-colors hover:text-accent-600;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-500);
+    outline-offset: 2px;
+  }
+
+  img,
+  svg {
+    @apply max-w-full;
+  }
+
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-[80rem] px-5 sm:px-8 lg:px-10;
+  }
+
+  .section {
+    @apply py-14 sm:py-16 lg:py-20;
+  }
+
+  .section-tight {
+    @apply py-9 sm:py-11 lg:py-14;
+  }
+
+  .rule {
+    @apply border-t border-steel-200;
+  }
+
+  .rule-dark {
+    @apply border-t border-white/12;
+  }
+
+  /* ---- Eyebrow label ----------------------------------------------------
+     A quiet, uppercase tracked label with a short grey rule in front.
+     No colour, no square — the label should read as a document header. */
+  .eyebrow {
+    @apply flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em]
+           text-steel-500;
+  }
+
+  .eyebrow::before {
+    content: '';
+    @apply block h-px w-6 shrink-0 bg-steel-300;
+  }
+
+  .eyebrow-light {
+    @apply text-steel-400;
+  }
+
+  .eyebrow-light::before {
+    @apply bg-white/25;
+  }
+  /* ---- Hover-reveal ----------------------------------------------------
+     Supplementary copy slides out from beneath a heading (or a list row) on
+     hover / keyboard focus. On touch and narrow screens, where hover does not
+     exist, the text stays open so nothing is hidden from mobile users. */
+  .reveal {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .reveal > * {
+    overflow: hidden;
+  }
+
+  .reveal-inner {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 300ms ease 60ms,
+      transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @media (hover: hover) and (min-width: 64rem) {
+    .reveal {
+      grid-template-rows: 0fr;
+    }
+
+    .reveal-inner {
+      opacity: 0;
+      transform: translateY(-0.35rem);
+    }
+
+    .reveal-group:hover .reveal,
+    .reveal-group:focus-within .reveal {
+      grid-template-rows: 1fr;
+    }
+
+    .reveal-group:hover .reveal-inner,
+    .reveal-group:focus-within .reveal-inner {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Touch / narrow screens: a small script adds `.reveal-tap` to <html> and
+     switches the same panels to tap-to-expand. Without JavaScript the panels
+     stay open, so nothing is ever hidden from a user who has no script. */
+  .reveal-tap .reveal {
+    grid-template-rows: 0fr;
+  }
+
+  .reveal-tap .reveal-inner {
+    opacity: 0;
+    transform: translateY(-0.35rem);
+  }
+
+  .reveal-tap .reveal-group.is-open .reveal {
+    grid-template-rows: 1fr;
+  }
+
+  .reveal-tap .reveal-group.is-open .reveal-inner {
+    opacity: 1;
+    transform: none;
+  }
+
+  .reveal-tap .reveal-group[role='button'] {
+    cursor: pointer;
+  }
+
+  /* Horizontal carousel: native scroll-snap so touch swipe and keyboard
+     scrolling work without JavaScript; the arrows only drive scrollTo. */
+  .carousel-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .carousel-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carousel-track > * {
+    scroll-snap-align: start;
+    flex: 0 0 100%;
+  }
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+@layer components {
+  /* Shared base via grouped selector: Tailwind v4's @apply only accepts real
+     utilities, never another custom class. */
+  .btn,
+  .btn-primary,
+  .btn-dark,
+  .btn-outline,
+  .btn-outline-light,
+  .btn-ghost {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 border px-6 py-3
+           text-[11px] font-semibold uppercase tracking-[0.16em] transition-colors;
+  }
+
+  /* The one place the accent is allowed to fill an area. */
+  .btn-primary {
+    @apply border-accent-500 bg-accent-500 text-white hover:border-accent-600 hover:bg-accent-600 hover:text-white;
+  }
+
+  .btn-dark {
+    @apply border-ink-900 bg-ink-900 text-white hover:border-ink-700 hover:bg-ink-700 hover:text-white;
+  }
+
+  .btn-outline {
+    @apply border-steel-300 bg-transparent text-ink-900 hover:border-ink-900 hover:bg-ink-900 hover:text-white;
+  }
+
+  .btn-outline-light {
+    @apply border-white/30 bg-transparent text-white hover:border-white hover:bg-white hover:text-ink-900;
+  }
+
+  .btn-ghost {
+    @apply border-transparent bg-transparent text-ink-700 hover:border-steel-300 hover:text-accent-600;
+  }
+
+  .link-rule {
+    @apply inline-flex items-center gap-2 border-b border-steel-300 pb-1.5
+           text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-800
+           transition-colors hover:border-accent-500 hover:text-accent-600;
+  }
+
+  .link-rule-dark {
+    @apply inline-flex items-center gap-2 border-b border-white/25 pb-1.5
+           text-[11px] font-semibold uppercase tracking-[0.16em] text-white
+           transition-colors hover:border-accent-400 hover:text-accent-400;
+  }
+}
+
+/* ==========================================================================
+   Panels, tags, spec lists, forms
+   ========================================================================== */
+@layer components {
+  .card {
+    @apply border border-steel-200 bg-white;
+  }
+
+  /* Hover darkens the rule. No lift, no shadow. */
+  .card-hover {
+    @apply transition-colors hover:border-ink-400;
+  }
+
+  .tag {
+    @apply inline-flex items-center border border-steel-300 px-2.5 py-1
+           text-[10px] font-semibold uppercase tracking-[0.14em] text-steel-600;
+  }
+
+  .tag-navy {
+    @apply inline-flex items-center border border-ink-900 bg-ink-900 px-2.5 py-1
+           text-[10px] font-semibold uppercase tracking-[0.14em] text-white;
+  }
+
+  .tag-accent {
+    @apply inline-flex items-center border border-accent-500 px-2.5 py-1
+           text-[10px] font-semibold uppercase tracking-[0.14em] text-accent-600;
+  }
+
+  /* ---- Specification list ----------------------------------------------
+     Label small and grey; value larger, tabular, in the same family. */
+  .spec-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.16em] text-steel-500;
+  }
+
+  .spec-value {
+    @apply text-[15px] font-medium tabular-nums text-ink-900;
+  }
+
+  /* ---- Forms ------------------------------------------------------------ */
+  .field-label {
+    @apply mb-2 block text-[10px] font-semibold uppercase tracking-[0.16em] text-steel-600;
+  }
+
+  .field-input {
+    @apply block min-h-12 w-full border border-steel-300 bg-white px-3.5 py-2.5
+           text-[15px] text-ink-900 placeholder:text-steel-400
+           focus:border-ink-700 focus:outline-none;
+  }
+
+  .field-input:focus {
+    outline: 2px solid var(--color-accent-500);
+    outline-offset: 1px;
+  }
+
+  .field-hint {
+    @apply mt-1.5 text-[11px] text-steel-500;
+  }
+
+  .field-error {
+    @apply mt-1.5 text-[11px] font-medium text-accent-600;
+  }
+}
+
+@layer components {
+  #site-header.is-scrolled {
+    @apply border-steel-300;
+  }
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+@layer utilities {
+  .bg-grid-light {
+    background-image:
+      linear-gradient(to right, rgb(11 14 16 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(11 14 16 / 0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-steel-300) transparent;
+  }
+
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}

@@ -1,0 +1,69 @@
+---
+interface Props {
+  /** Sheet index shown before the eyebrow, e.g. "01". */
+  index?: string;
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  align?: 'left' | 'center';
+  /** Optional id so the section can be linked to / labelled. */
+  id?: string;
+  class?: string;
+  /** 'light' is for navy backgrounds. */
+  variant?: 'default' | 'light';
+  /** Renders a hairline above the heading — a drawing-sheet divider. */
+  rule?: boolean;
+}
+
+const {
+  index,
+  eyebrow,
+  title,
+  subtitle,
+  align = 'left',
+  id,
+  class: className = '',
+  variant = 'default',
+  rule = false,
+} = Astro.props;
+
+const isLight = variant === 'light';
+const hasLabel = Boolean(eyebrow || index);
+---
+
+<div
+  class:list={[
+    'max-w-3xl',
+    align === 'center' && 'mx-auto text-center',
+    rule && (isLight ? 'border-t border-white/15 pt-6' : 'border-t border-steel-200 pt-6'),
+    className,
+  ]}
+>
+  {
+    hasLabel && (
+      <p
+        class:list={['eyebrow', align === 'center' && 'justify-center', isLight && 'eyebrow-light']}
+      >
+        {index && <span class="text-steel-400">{index}</span>}
+        {eyebrow}
+      </p>
+    )
+  }
+  <h2 id={id} class:list={[hasLabel && 'mt-3.5', isLight && 'text-white']}>
+    {title}
+  </h2>
+  {
+    subtitle && (
+      <p
+        class:list={[
+          'mt-3.5 max-w-2xl text-[15px] leading-relaxed',
+          align === 'center' && 'mx-auto',
+          isLight ? 'text-steel-300' : 'text-steel-600',
+        ]}
+      >
+        {subtitle}
+      </p>
+    )
+  }
+  <slot />
+</div>

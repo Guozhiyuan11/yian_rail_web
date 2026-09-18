@@ -1,0 +1,312 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../Breadcrumb.astro';
+import SectionHeading from '../SectionHeading.astro';
+import SpecificationTable from '../SpecificationTable.astro';
+import KeySpecStrip from '../KeySpecStrip.astro';
+import DocumentCard from '../DocumentCard.astro';
+import ApplicationCard from '../ApplicationCard.astro';
+import RelatedProducts from '../RelatedProducts.astro';
+import RFQForm from '../RFQForm.astro';
+import Icon from '../Icon.astro';
+import type { IconName } from '../icons';
+
+import { getRelatedRails, type RailProduct } from '../../data/rails';
+import { applicationLabelKey, heatTreatmentLabelKey } from '../../data/taxonomies';
+import { useTranslations, localizePath, type Lang } from '../../i18n/ui';
+import { site } from '../../utils/site';
+import {
+  APPLICATION_ICONS,
+  applicationLabels,
+  standardLabel,
+  type SpecRow,
+} from '../../utils/product';
+import { applicationImages, media } from '../../data/media';
+
+interface Props {
+  product: RailProduct;
+  lang: Lang;
+}
+
+const { product, lang } = Astro.props;
+const t = useTranslations(lang);
+
+const path = `/rail/${product.slug}`;
+const related = getRelatedRails(product, 4);
+
+const isEs = lang === 'es';
+const seoTitle = (isEs ? product.seoTitleEs : undefined) ?? product.seoTitle;
+const seoDescription = (isEs ? product.seoDescriptionEs : undefined) ?? product.seoDescription;
+
+const heatTreatment = product.heatTreatmentKey
+  ? t(heatTreatmentLabelKey(product.heatTreatmentKey))
+  : null;
+const applications = applicationLabels(product, t);
+const standard = standardLabel(product, t);
+
+const specRows: SpecRow[] = [
+  { label: t('detail.spec.railProfile'), value: product.railProfile },
+  { label: t('detail.spec.standard'), value: standard },
+  { label: t('detail.spec.unitWeight'), value: product.unitWeight },
+  { label: t('detail.spec.dimensions'), value: product.dimensions },
+  { label: t('detail.spec.steelGrade'), value: product.steelGrade },
+  { label: t('detail.spec.heatTreatment'), value: heatTreatment },
+  { label: t('detail.spec.length'), value: product.length },
+  { label: t('detail.spec.tolerance'), value: product.tolerance },
+  { label: t('detail.spec.application'), value: applications.join(' / ') || null },
+  { label: t('detail.spec.packaging'), value: product.packaging },
+  { label: t('detail.spec.leadTime'), value: product.leadTime },
+];
+
+const keySpecs = [
+  { label: t('detail.spec.railProfile'), value: product.railProfile },
+  { label: t('detail.spec.standard'), value: standard },
+  { label: t('detail.spec.unitWeight'), value: product.unitWeight },
+  { label: t('detail.spec.heatTreatment'), value: heatTreatment },
+];
+
+const qualityCards: { icon: IconName; title: string; description: string }[] = [
+  {
+    icon: 'clipboard',
+    title: t('detail.quality.millTest.title'),
+    description: t('detail.quality.millTest.desc'),
+  },
+  {
+    icon: 'eye',
+    title: t('detail.quality.inspection.title'),
+    description: t('detail.quality.inspection.desc'),
+  },
+  {
+    icon: 'shield',
+    title: t('detail.quality.thirdParty.title'),
+    description: t('detail.quality.thirdParty.desc'),
+  },
+  {
+    icon: 'package',
+    title: t('detail.quality.packaging.title'),
+    description: t('detail.quality.packaging.desc'),
+  },
+  {
+    icon: 'doc',
+    title: t('detail.quality.exportDocs.title'),
+    description: t('detail.quality.exportDocs.desc'),
+  },
+  {
+    icon: 'check',
+    title: t('detail.quality.qa.title'),
+    description: t('detail.quality.qa.desc'),
+  },
+];
+
+// Structured data. Manufacturer markup is intentionally omitted until the
+// Pangang wording is covered by written authorisation.
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.name,
+  description: seoDescription,
+  brand: { '@type': 'Brand', name: site.name },
+  category: 'Railway rail',
+};
+---
+
+<BaseLayout title={seoTitle} description={seoDescription} path={path} ogType="article">
+  <script
+    is:inline
+    type="application/ld+json"
+    slot="head"
+    set:html={JSON.stringify(productSchema)}
+  />
+
+  <!-- Breadcrumb strip -->
+  <div class="border-b border-steel-200 bg-steel-50">
+    <div class="container-x py-3">
+      <Breadcrumb
+        items={[
+          { label: t('common.home'), href: '/' },
+          { label: t('nav.railProducts'), href: '/rail-products' },
+          { label: product.name },
+        ]}
+        lang={lang}
+      />
+    </div>
+  </div>
+
+  <!-- Product hero -->
+  <section class="border-b border-steel-200 bg-white">
+    <div class="container-x py-8 lg:py-10">
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,29rem)_minmax(0,1fr)] lg:gap-12">
+        <div class="border border-steel-200 bg-white">
+          <img
+            src={product.productSheet ?? product.coverImage ?? ''}
+            alt={product.productSheet
+              ? `${product.name} product sheet — perspective, dimensions and views`
+              : `${product.name} cross-section`}
+            class="h-full w-full object-contain p-4"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+
+        <div>
+          <p class="spec-label">{t('detail.specification')}</p>
+          <h1 class="mt-3" translate="no">{product.name}</h1>
+
+          <div class="mt-4 flex flex-wrap items-center gap-2">
+            {
+              standard && (
+                <span class="tag-navy" translate="no">
+                  {standard}
+                </span>
+              )
+            }
+            {
+              applications.map((app) => (
+                <span class="tag" translate="no">
+                  {app}
+                </span>
+              ))
+            }
+          </div>
+
+          <div class="mt-7">
+            <KeySpecStrip items={keySpecs} />
+          </div>
+
+          <div class="mt-7 flex flex-wrap gap-3">
+            <a href="#rfq" class="btn-primary">{t('cta.requestQuote')}</a>
+
+            {
+              product.datasheet && (
+                <a href={product.datasheet} class="btn-outline" download>
+                  <Icon name="download" size={16} />
+                  {t('cta.downloadDatasheet')}
+                </a>
+              )
+            }
+
+            <a href={`mailto:${site.contact.email}`} class="btn-outline">
+              <Icon name="mail" size={16} />
+              {t('cta.contactSales')}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Overview + dimensions -->
+  <section class="section-tight border-b border-steel-200 lg:section">
+    <div class="container-x">
+      <div class="grid gap-10 lg:grid-cols-2 lg:gap-14">
+        <div>
+          <SectionHeading index="01" title={t('detail.section.overview')} />
+          <div class="mt-6">
+            <SpecificationTable rows={specRows} lang={lang} />
+          </div>
+        </div>
+
+        <div>
+          <SectionHeading index="02" title={t('detail.section.dimensions')} />
+          <div class="mt-6 border border-steel-200 bg-white">
+            <img
+              src={product.dimensionDrawing ?? product.coverImage ?? ''}
+              alt={`${product.name} front view with dimensions`}
+              class="mx-auto w-full max-w-md object-contain p-4"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <p class="mt-3 text-[10px] uppercase tracking-[0.1em] text-steel-500">
+            {t('detail.drawingNote')}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quality & documents -->
+  <section class="section-tight border-b border-steel-200 bg-steel-50 lg:section">
+    <div class="container-x">
+      <SectionHeading index="03" title={t('detail.section.quality')} />
+      <ul class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          qualityCards.map((card) => (
+            <DocumentCard icon={card.icon} title={card.title} description={card.description} />
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Manufacturing source -->
+  <section class="section-tight border-b border-steel-200 lg:section">
+    <div class="container-x">
+      <div
+        class="grid gap-8 border border-steel-200 bg-white lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]"
+      >
+        <img
+          src={media.manufacturing}
+          alt={t('detail.section.manufacturedBy')}
+          class="h-64 w-full object-cover lg:h-full"
+          loading="lazy"
+          decoding="async"
+        />
+        <div class="p-6 lg:p-9">
+          <SectionHeading index="04" title={t('detail.section.manufacturedBy')} />
+          <p class="mt-4 max-w-xl text-[14px] leading-relaxed text-steel-700">
+            {t('detail.manufacturedByText')}
+          </p>
+          <a href={localizePath('/manufacturing', lang)} class="link-rule mt-6">
+            {t('cta.exploreManufacturing')}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Applications -->
+  {
+    product.applicationKeys.length > 0 && (
+      <section class="section-tight border-b border-steel-200 bg-steel-50 lg:section">
+        <div class="container-x">
+          <SectionHeading index="05" title={t('detail.section.applications')} />
+          <ul class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {product.applicationKeys.map((key) => (
+              <ApplicationCard
+                label={t(applicationLabelKey(key))}
+                icon={APPLICATION_ICONS[key]}
+                image={applicationImages[key]}
+              />
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Related products -->
+  <section class="section-tight lg:section">
+    <div class="container-x">
+      <SectionHeading index="06" title={t('detail.section.related')} />
+      <div class="mt-8">
+        <RelatedProducts products={related} lang={lang} />
+      </div>
+    </div>
+  </section>
+
+  <!-- RFQ -->
+  <section id="rfq" class="border-t border-steel-200 bg-steel-50 section">
+    <div class="container-x">
+      <div class="mx-auto max-w-3xl">
+        <RFQForm
+          lang={lang}
+          product={product}
+          id={`rfq-${product.slug}`}
+          title={t('detail.rfq.title', { name: product.name })}
+          subtitle={t('detail.rfq.subtitle')}
+        />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

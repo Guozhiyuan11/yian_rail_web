@@ -1,0 +1,196 @@
+---
+import type { Lang } from '../i18n/ui';
+import { useTranslations, localizePath } from '../i18n/ui';
+import Logo from './Logo.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  /** Locale-agnostic path of the current page, e.g. '/rail/136re'. */
+  path: string;
+}
+
+const { lang, path } = Astro.props;
+const t = useTranslations(lang);
+
+const navLinks = [
+  { href: '/', key: 'nav.home' },
+  { href: '/rail-products', key: 'nav.railProducts' },
+  { href: '/applications', key: 'nav.applications' },
+  { href: '/projects', key: 'nav.projects' },
+  { href: '/manufacturing', key: 'nav.manufacturing' },
+  { href: '/export-delivery', key: 'nav.exportDelivery' },
+  { href: '/about', key: 'nav.about' },
+  { href: '/contact', key: 'nav.contact' },
+] as const;
+
+const isCurrent = (href: string) =>
+  href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`);
+
+const quoteHref = localizePath('/contact', lang);
+---
+
+<!-- Utility strip: scrolls away, desktop only -->
+<div class="hidden border-b border-steel-200 bg-steel-50 lg:block">
+  <div
+    class="container-x flex h-9 items-center justify-between text-[10px] uppercase tracking-[0.16em]"
+  >
+    <span class="text-ink-700">{t('brand.claim')}</span>
+    <span class="text-steel-500">{t('brand.values')}</span>
+  </div>
+</div>
+
+<!-- Sticky main bar -->
+<header id="site-header" class="sticky top-0 z-50 border-b border-steel-200 bg-white">
+  <div class="container-x">
+    <div class="flex h-16 items-center justify-between gap-3 lg:h-[4.25rem]">
+      <Logo lang={lang} />
+
+      <!-- Desktop navigation -->
+      <nav class="hidden items-center xl:flex" aria-label={t('nav.primary')}>
+        {
+          navLinks.map((link) => (
+            <a
+              href={localizePath(link.href, lang)}
+              aria-current={isCurrent(link.href) ? 'page' : undefined}
+              class:list={[
+                'whitespace-nowrap border-b-2 px-3 py-2 text-[13px] font-medium transition-colors',
+                isCurrent(link.href)
+                  ? 'border-accent-500 text-ink-900'
+                  : 'border-transparent text-steel-600 hover:border-steel-300 hover:text-ink-900',
+              ]}
+            >
+              {t(link.key)}
+            </a>
+          ))
+        }
+      </nav>
+
+      <!-- Right cluster -->
+      <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div class="hidden xl:block">
+          <LanguageSwitcher lang={lang} path={path} variant="pill" />
+        </div>
+
+        <a href={quoteHref} class="btn-primary min-h-10 whitespace-nowrap px-3 sm:min-h-11 sm:px-4">
+          <span class="sm:hidden">{t('cta.quoteShort')}</span>
+          <span class="hidden sm:inline">{t('cta.requestQuote')}</span>
+        </a>
+
+        <button
+          type="button"
+          id="mobile-nav-toggle"
+          class="inline-flex h-11 w-11 items-center justify-center border border-steel-300 text-ink-900 transition-colors hover:border-ink-900 xl:hidden"
+          aria-expanded="false"
+          aria-controls="mobile-nav"
+          aria-label={t('nav.openMenu')}
+        >
+          <Icon name="menu" size={20} />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile navigation drawer -->
+  <div
+    id="mobile-nav"
+    class="fixed inset-0 z-[60] hidden xl:hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-label={t('nav.primary')}
+  >
+    <div class="absolute inset-0 bg-ink-950/60" data-nav-overlay></div>
+
+    <div
+      class="absolute inset-y-0 right-0 flex w-[88%] max-w-sm flex-col border-l border-steel-300 bg-white"
+    >
+      <div class="flex h-16 items-center justify-between border-b border-steel-200 px-4">
+        <Logo lang={lang} />
+        <button
+          type="button"
+          id="mobile-nav-close"
+          class="inline-flex h-11 w-11 items-center justify-center border border-steel-300 text-ink-900 transition-colors hover:border-ink-900"
+          aria-label={t('nav.closeMenu')}
+        >
+          <Icon name="close" size={20} />
+        </button>
+      </div>
+
+      <nav class="scrollbar-thin flex-1 overflow-y-auto" aria-label={t('nav.primary')}>
+        <ul class="flex flex-col">
+          {
+            navLinks.map((link) => (
+              <li>
+                <a
+                  href={localizePath(link.href, lang)}
+                  aria-current={isCurrent(link.href) ? 'page' : undefined}
+                  class:list={[
+                    'flex min-h-12 items-center border-b border-steel-100 px-4 text-[15px] font-medium transition-colors',
+                    isCurrent(link.href) ? 'text-accent-600' : 'text-steel-700 hover:text-ink-900',
+                  ]}
+                >
+                  {t(link.key)}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="px-4 py-5">
+          <p class="spec-label mb-3">{t('lang.label')}</p>
+          <LanguageSwitcher lang={lang} path={path} variant="list" />
+        </div>
+      </nav>
+
+      <div class="border-t border-steel-200 p-4">
+        <a href={quoteHref} class="btn-primary w-full">
+          {t('cta.requestQuote')}
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.getElementById('site-header');
+  const toggle = document.getElementById('mobile-nav-toggle');
+  const panel = document.getElementById('mobile-nav');
+  const closeBtn = document.getElementById('mobile-nav-close');
+
+  function openNav() {
+    if (!panel || !toggle) return;
+    panel.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    toggle.setAttribute('aria-expanded', 'true');
+    closeBtn?.focus();
+  }
+
+  function closeNav() {
+    if (!panel || !toggle) return;
+    panel.classList.add('hidden');
+    document.body.style.overflow = '';
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle?.addEventListener('click', openNav);
+  closeBtn?.addEventListener('click', closeNav);
+
+  panel?.querySelectorAll('a, [data-nav-overlay]').forEach((el) => {
+    el.addEventListener('click', closeNav);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeNav();
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 1280) closeNav();
+  });
+
+  const onScroll = () => {
+    header?.classList.toggle('is-scrolled', window.scrollY > 8);
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>

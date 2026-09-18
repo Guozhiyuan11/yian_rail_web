@@ -1,0 +1,67 @@
+---
+import { languages, localizePath, useTranslations, type Lang } from '../i18n/ui';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  /** Locale-agnostic path of the current page, e.g. '/rail/136re'. */
+  path: string;
+  /** 'pill' = compact segmented control (header), 'list' = stacked (drawer). */
+  variant?: 'pill' | 'list';
+}
+
+const { lang, path, variant = 'pill' } = Astro.props;
+const t = useTranslations(lang);
+const locales = Object.keys(languages) as Lang[];
+
+const pillClass = (isActive: boolean) =>
+  [
+    'flex min-h-10 flex-1 items-center justify-center border px-3 text-[11px] font-medium uppercase tracking-[0.14em] transition-colors',
+    isActive
+      ? 'border-ink-900 bg-ink-900 text-white'
+      : 'border-transparent text-steel-500 hover:text-ink-900',
+  ].join(' ');
+
+const listClass = (isActive: boolean) =>
+  [
+    'flex min-h-12 w-full items-center justify-between border px-4 text-[14px] font-medium transition-colors',
+    isActive
+      ? 'border-ink-900 bg-ink-50 text-ink-900'
+      : 'border-steel-200 text-steel-600 hover:border-steel-400 hover:text-ink-900',
+  ].join(' ');
+---
+
+{
+  variant === 'pill' ? (
+    <div
+      class="inline-flex items-stretch border border-steel-300"
+      role="group"
+      aria-label={t('lang.label')}
+    >
+      {locales.map((locale) => (
+        <a
+          href={localizePath(path, locale)}
+          class={pillClass(locale === lang)}
+          hreflang={locale}
+          aria-current={locale === lang ? 'true' : undefined}
+        >
+          {locale.toUpperCase()}
+        </a>
+      ))}
+    </div>
+  ) : (
+    <div class="flex flex-col gap-2" role="group" aria-label={t('lang.label')}>
+      {locales.map((locale) => (
+        <a
+          href={localizePath(path, locale)}
+          class={listClass(locale === lang)}
+          hreflang={locale}
+          aria-current={locale === lang ? 'true' : undefined}
+        >
+          <span>{languages[locale]}</span>
+          {locale === lang && <Icon name="check" size={16} />}
+        </a>
+      ))}
+    </div>
+  )
+}

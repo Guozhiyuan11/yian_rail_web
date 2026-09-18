@@ -1,0 +1,333 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../Hero.astro';
+import SectionHeading from '../SectionHeading.astro';
+import StatBand from '../StatBand.astro';
+import OverlayBand from '../OverlayBand.astro';
+import PhotoEvidence from '../PhotoEvidence.astro';
+import RevealList from '../RevealList.astro';
+import StandardCard from '../StandardCard.astro';
+import ApplicationCard from '../ApplicationCard.astro';
+import ProcessSteps from '../ProcessSteps.astro';
+import CTASection from '../CTASection.astro';
+import Icon from '../Icon.astro';
+
+import { publishedRails } from '../../data/rails';
+import { featuredProjects, trackRecord } from '../../data/projects';
+import {
+  STANDARD_KEYS,
+  HOME_APPLICATION_KEYS,
+  standardLabelKey,
+  applicationLabelKey,
+  applicationDescKey,
+} from '../../data/taxonomies';
+import { useTranslations, localizePath, type Lang } from '../../i18n/ui';
+import { APPLICATION_ICONS, standardLabel } from '../../utils/product';
+import { media, applicationImages } from '../../data/media';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = '/';
+
+const stats = trackRecord.map((s) => ({ value: s.value, label: t(s.labelKey) }));
+
+const rolePoints = [
+  'home.role.point1',
+  'home.role.point2',
+  'home.role.point3',
+  'home.role.point4',
+] as const;
+
+const whyItems = [
+  'home.why.item1',
+  'home.why.item2',
+  'home.why.item3',
+  'home.why.item4',
+  'home.why.item5',
+  'home.why.item6',
+] as const;
+
+/** Real photographs from the line — evidence, not pictograms. */
+const evidence = [
+  { image: '/images/rail-022.webp', key: 'home.mfg.item1' },
+  { image: '/images/rail-011.webp', key: 'home.mfg.item2' },
+  { image: '/images/rail-010.webp', key: 'home.mfg.item3' },
+  { image: '/images/rail-016.webp', key: 'home.mfg.item4' },
+  { image: '/images/rail-008.webp', key: 'home.mfg.item5' },
+].map((e, i) => ({
+  image: e.image,
+  alt: t(`${e.key}.title` as never),
+  step: String(i + 1).padStart(2, '0'),
+  title: t(`${e.key}.title` as never),
+  text: t(`${e.key}.desc` as never),
+}));
+
+const steps = [
+  { title: t('home.process.step1.title'), description: t('home.process.step1.desc') },
+  { title: t('home.process.step2.title'), description: t('home.process.step2.desc') },
+  { title: t('home.process.step3.title'), description: t('home.process.step3.desc') },
+  { title: t('home.process.step4.title'), description: t('home.process.step4.desc') },
+];
+---
+
+<BaseLayout title={t('home.hero.title')} description={t('home.hero.subtitle')} path={path}>
+  <!-- Hero: a slidable showcase of references and figures -->
+  <Hero lang={lang} />
+
+  <StatBand stats={stats} />
+
+  <!-- 01 · Our role -->
+  <section class="section bg-white">
+    <div class="container-x">
+      <div class="grid gap-10 lg:grid-cols-[7fr_5fr] lg:gap-16">
+        <div>
+          <p class="eyebrow">
+            <span class="text-steel-400">01</span>
+            {t('home.role.eyebrow')}
+          </p>
+          <p
+            class="mt-7 max-w-2xl text-[1.5rem] leading-[1.3] font-medium tracking-[-0.015em] text-ink-900 sm:text-[1.875rem] lg:text-[2.125rem]"
+          >
+            {t('home.role.title')}
+          </p>
+          <p class="mt-6 max-w-xl text-[15px] leading-relaxed text-steel-600">
+            {t('home.role.lead')}
+          </p>
+          <a href={localizePath('/about', lang)} class="link-rule mt-8">
+            {t('cta.learnMoreRole')}
+          </a>
+        </div>
+
+        <ol class="border-t border-ink-900 lg:mt-16">
+          {
+            rolePoints.map((key, i) => (
+              <li class="flex gap-5 border-b border-steel-200 py-5">
+                <span class="w-6 shrink-0 text-[11px] tracking-[0.18em] text-steel-400">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span class="text-[14px] leading-relaxed text-steel-700">{t(key)}</span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · Reference projects. Photography runs edge to edge. -->
+  <section class="border-t border-steel-200 bg-white pt-14 lg:pt-20">
+    <div class="container-x">
+      <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <SectionHeading
+          index="02"
+          eyebrow={t('home.projects.eyebrow')}
+          title={t('home.projects.title')}
+          subtitle={t('home.projects.subtitle')}
+        />
+        <a href={localizePath('/projects', lang)} class="link-rule shrink-0">
+          {t('home.projects.cta')}
+          <Icon name="arrowRight" size={14} />
+        </a>
+      </div>
+    </div>
+
+    <ul class="mt-10 grid grid-cols-1 lg:grid-cols-2">
+      {
+        featuredProjects.map((project) => (
+          <li class="relative isolate flex min-h-[22rem] items-end overflow-hidden bg-ink-950 lg:min-h-[30rem]">
+            {project.image && (
+              <img
+                src={project.image}
+                alt={project.imageAlt?.[lang] ?? project.name[lang]}
+                class="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-500 group-hover:opacity-95"
+                loading="lazy"
+                decoding="async"
+              />
+            )}
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/60 to-transparent"
+              aria-hidden="true"
+            />
+
+            <div class="group reveal-group relative w-full p-8 lg:p-10">
+              <div class="flex items-baseline justify-between gap-4">
+                <span class="text-[11px] tracking-[0.18em] text-steel-300 uppercase">
+                  {project.country[lang]}
+                </span>
+                <span class="text-[12px] tabular-nums text-steel-400">{project.year}</span>
+              </div>
+
+              <h3 class="mt-3 max-w-md text-white" translate="no">
+                {project.name[lang]}
+              </h3>
+
+              <div class="reveal">
+                <div class="reveal-inner">
+                  <p class="mt-3 max-w-md text-[13.5px] leading-relaxed text-steel-200">
+                    {project.summary[lang]}
+                  </p>
+                </div>
+              </div>
+
+              <p class="mt-3 max-w-md text-[13.5px] font-medium text-white">
+                {project.scope[lang]}
+              </p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="container-x py-6">
+      <p class="max-w-4xl text-[12px] leading-relaxed text-steel-500">
+        {t('projectsPage.attribution')}
+      </p>
+    </div>
+  </section>
+
+  <!-- 03 · Rail profiles — a mention, not a catalogue -->
+  <section class="section border-t border-steel-200 bg-steel-50">
+    <div class="container-x">
+      <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <SectionHeading
+          index="03"
+          eyebrow={t('home.featured.eyebrow')}
+          title={t('home.featured.title')}
+          subtitle={t('home.featured.subtitle')}
+        />
+        <a href={localizePath('/rail-products', lang)} class="link-rule shrink-0">
+          {t('cta.viewAllProducts')}
+          <Icon name="arrowRight" size={14} />
+        </a>
+      </div>
+
+      <ul
+        class="mt-9 grid grid-cols-2 border-t border-l border-steel-200 sm:grid-cols-3 lg:grid-cols-6"
+      >
+        {
+          publishedRails.map((product) => (
+            <li class="border-r border-b border-steel-200 bg-white">
+              <a
+                href={localizePath(`/rail/${product.slug}`, lang)}
+                class="flex h-full flex-col justify-between gap-3 p-4 transition-colors hover:bg-steel-50"
+              >
+                <span class="text-[15px] font-semibold text-ink-900" translate="no">
+                  {product.name}
+                </span>
+                <span class="text-[11px] tracking-[0.12em] text-steel-500 uppercase" translate="no">
+                  {standardLabel(product, t) ?? '—'}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 · Manufacturing — full-bleed band, then real photographs -->
+  <OverlayBand
+    image={media.manufacturing}
+    alt={t('home.mfg.title')}
+    eyebrow={t('home.mfg.eyebrow')}
+    title={t('home.mfg.title')}
+    text={t('home.mfg.subtitle')}
+    size="lg"
+  >
+    <a href={localizePath('/manufacturing', lang)} class="link-rule-dark mt-8">
+      {t('cta.exploreManufacturing')}
+    </a>
+  </OverlayBand>
+
+  <section class="bg-white py-14 lg:py-20">
+    <div class="container-x">
+      <SectionHeading
+        index="04"
+        eyebrow={t('home.mfg.evidenceEyebrow')}
+        title={t('home.mfg.evidenceTitle')}
+        subtitle={t('home.mfg.evidenceText')}
+      />
+      <div class="mt-10">
+        <PhotoEvidence items={evidence} />
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · Standards & applications -->
+  <section class="section border-t border-steel-200 bg-white">
+    <div class="container-x">
+      <SectionHeading
+        index="05"
+        eyebrow={t('home.standards.eyebrow')}
+        title={t('home.standards.title')}
+        subtitle={t('home.standards.note')}
+      />
+
+      <p class="spec-label mt-10">{t('home.standards.standardsLabel')}</p>
+      <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {STANDARD_KEYS.map((key) => <StandardCard label={t(standardLabelKey(key))} />)}
+      </ul>
+
+      <p class="spec-label mt-12">{t('home.standards.applicationsLabel')}</p>
+      <ul class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          HOME_APPLICATION_KEYS.map((key, i) => (
+            <ApplicationCard
+              label={t(applicationLabelKey(key))}
+              icon={APPLICATION_ICONS[key]}
+              image={applicationImages[key]}
+              description={t(applicationDescKey(key))}
+              index={String(i + 1).padStart(2, '0')}
+            />
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- 06 · Why — hover-reveal rows, no icon grid -->
+  <section class="section border-t border-steel-200 bg-steel-50">
+    <div class="container-x">
+      <SectionHeading
+        index="06"
+        eyebrow={t('home.why.eyebrow')}
+        title={t('home.why.title')}
+        subtitle={t('home.why.subtitle')}
+      />
+      <div class="mt-10">
+        <RevealList
+          hint={t('home.why.hint')}
+          items={whyItems.map((key) => ({
+            title: t(`${key}.title` as never),
+            text: t(`${key}.desc` as never),
+          }))}
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · Cooperation process -->
+  <section class="section border-t border-steel-200 bg-white">
+    <div class="container-x">
+      <SectionHeading
+        index="07"
+        eyebrow={t('home.process.eyebrow')}
+        title={t('home.process.title')}
+      />
+      <div class="mt-10">
+        <ProcessSteps steps={steps} />
+      </div>
+    </div>
+  </section>
+
+  <CTASection
+    lang={lang}
+    eyebrow={t('home.hero.eyebrow')}
+    title={t('home.finalCta.title')}
+    text={t('home.finalCta.subtitle')}
+  />
+</BaseLayout>

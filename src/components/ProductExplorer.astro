@@ -1,0 +1,379 @@
+---
+import { publishedRails, type RailProduct } from '../data/rails';
+import {
+  STANDARD_KEYS,
+  APPLICATION_KEYS,
+  HEAT_TREATMENT_KEYS,
+  standardLabelKey,
+  applicationLabelKey,
+  heatTreatmentLabelKey,
+} from '../data/taxonomies';
+import { useTranslations, localizePath, type Lang } from '../i18n/ui';
+import { productTagline } from '../utils/product';
+import RailCatalogue from './RailCatalogue.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const groups = [
+  {
+    id: 'railProfile',
+    legend: t('products.filterRailProfile'),
+    options: publishedRails.map((r) => ({ value: r.id, label: r.name })),
+  },
+  {
+    id: 'standard',
+    legend: t('products.filterStandard'),
+    options: STANDARD_KEYS.map((k) => ({ value: k, label: t(standardLabelKey(k)) })),
+  },
+  {
+    id: 'application',
+    legend: t('products.filterApplication'),
+    options: APPLICATION_KEYS.map((k) => ({ value: k, label: t(applicationLabelKey(k)) })),
+  },
+  {
+    id: 'heat',
+    legend: t('products.filterHeatTreatment'),
+    options: HEAT_TREATMENT_KEYS.map((k) => ({ value: k, label: t(heatTreatmentLabelKey(k)) })),
+  },
+];
+
+/** Free-text haystack used by the client-side search box. */
+const searchIndex = (product: RailProduct) =>
+  [product.name, product.railProfile, productTagline(product, t, 6)]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+const total = publishedRails.length;
+const initialCount =
+  total === 1 ? t('products.resultOne') : t('products.results', { count: total });
+---
+
+<div id="product-explorer">
+  <!-- Toolbar: search + sort -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="relative w-full sm:max-w-md">
+      <label for="product-search" class="sr-only">{t('products.searchLabel')}</label>
+      <span
+        class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-steel-400"
+        aria-hidden="true"
+      >
+        <Icon name="search" size={18} />
+      </span>
+      <input
+        id="product-search"
+        type="search"
+        class="field-input pl-10"
+        placeholder={t('products.searchPlaceholder')}
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        id="filter-toggle"
+        class="btn-outline min-h-11 gap-2 px-4 text-sm lg:hidden"
+        aria-expanded="false"
+        aria-controls="product-filters-panel"
+      >
+        <Icon name="filter" size={18} />
+        {t('cta.filters')}
+      </button>
+
+      <div class="flex items-center gap-2">
+        <label for="product-sort" class="whitespace-nowrap text-xs font-medium text-steel-500">
+          {t('common.sortBy')}
+        </label>
+        <select id="product-sort" class="field-input w-auto py-2 pr-8 text-sm">
+          <option value="featured">{t('common.sortFeatured')}</option>
+          <option value="name">{t('common.sortNameAsc')}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 grid gap-8 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10">
+    <!-- Mobile overlay -->
+    <div
+      id="filter-overlay"
+      class="fixed inset-0 z-40 hidden bg-ink-950/50 lg:hidden"
+      aria-hidden="true"
+    >
+    </div>
+
+    <!-- Filter panel: bottom sheet on mobile, sidebar on desktop -->
+    <aside
+      id="product-filters-panel"
+      class="scrollbar-thin fixed inset-x-0 bottom-0 z-50 max-h-[85vh] translate-y-full overflow-y-auto border-t border-steel-200 bg-white p-5 pb-8 transition-transform duration-200 ease-out lg:sticky lg:top-28 lg:z-auto lg:max-h-[calc(100vh-9rem)] lg:translate-y-0 lg:border-0 lg:bg-transparent lg:p-0 lg:pb-0"
+      aria-label={t('products.sidebarAria')}
+    >
+      <div class="flex items-center justify-between lg:hidden">
+        <h2 class="text-base font-semibold text-ink-900">{t('cta.filters')}</h2>
+        <button
+          type="button"
+          id="filter-close"
+          class="inline-flex h-10 w-10 items-center justify-center border border-steel-200 text-ink-900"
+          aria-label={t('cta.close')}
+        >
+          <Icon name="close" size={20} />
+        </button>
+      </div>
+
+      <p class="spec-label hidden lg:block">
+        {t('products.filterTitle')}
+      </p>
+
+      <div class="mt-3 lg:mt-4">
+        {
+          groups.map((group) => (
+            <fieldset class="border-t border-steel-200 py-4 first:border-t-0 first:pt-0 lg:first:pt-2">
+              <legend class="text-[13px] font-semibold text-ink-900">{group.legend}</legend>
+              <div class="mt-3 flex flex-col gap-1">
+                {group.options.map((option) => (
+                  <label class="flex min-h-10 cursor-pointer items-center gap-2.5 py-1 text-sm text-steel-700">
+                    <input
+                      type="checkbox"
+                      data-group={group.id}
+                      value={option.value}
+                      class="h-[18px] w-[18px] shrink-0 accent-ink-700"
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ))
+        }
+      </div>
+
+      <div class="mt-2 flex flex-col gap-2 border-t border-steel-200 pt-4 lg:flex-row">
+        <button
+          type="button"
+          id="product-clear"
+          class="btn-outline min-h-11 w-full px-4 text-sm lg:w-auto"
+        >
+          {t('cta.clearFilters')}
+        </button>
+        <button
+          type="button"
+          id="filter-apply"
+          class="btn-primary min-h-11 w-full px-4 text-sm lg:hidden"
+        >
+          {t('cta.applyFilters')}
+        </button>
+      </div>
+    </aside>
+
+    <!-- Results -->
+    <div>
+      <p
+        id="product-count"
+        class="text-[11px] uppercase tracking-[0.1em] text-steel-500"
+        data-template={t('products.results')}
+        data-template-one={t('products.resultOne')}
+        aria-live="polite"
+      >
+        {initialCount}
+      </p>
+
+      <RailCatalogue
+        products={publishedRails}
+        lang={lang}
+        listId="product-grid"
+        showHeader
+        dataAttrs={(product, index) => ({
+          'data-product': '',
+          'data-id': product.id,
+          'data-name': product.name,
+          'data-standard': product.standardKey ?? '',
+          'data-applications': product.applicationKeys.join(','),
+          'data-heat': product.heatTreatmentKey ?? '',
+          'data-search': searchIndex(product),
+          'data-order': String(index),
+        })}
+      />
+
+      <!-- Empty state -->
+      <div id="product-empty" class="hidden card mt-4 p-8 text-center">
+        <h3 class="text-lg font-semibold text-ink-900">{t('products.empty.title')}</h3>
+        <p class="mt-2 text-sm text-steel-600">{t('products.empty.text')}</p>
+        <button type="button" id="product-clear-2" class="btn-outline mt-5 min-h-11 px-5 text-sm">
+          {t('cta.clearFilters')}
+        </button>
+      </div>
+
+      <!-- Not listed -->
+      <div
+        class="mt-8 flex flex-col gap-4 border border-steel-200 bg-steel-50 p-5 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <h3 class="text-base font-semibold text-ink-900">{t('products.notListed.title')}</h3>
+          <p class="mt-1 text-sm text-steel-600">{t('products.notListed.text')}</p>
+        </div>
+        <a href={localizePath('/contact', lang)} class="btn-primary min-h-11 shrink-0 px-5 text-sm">
+          {t('cta.requestQuote')}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const explorer = document.getElementById('product-explorer');
+
+  if (explorer) {
+    const grid = explorer.querySelector<HTMLElement>('#product-grid');
+    const items = Array.from(explorer.querySelectorAll<HTMLElement>('[data-product]'));
+    const countEl = explorer.querySelector<HTMLElement>('#product-count');
+    const emptyEl = explorer.querySelector<HTMLElement>('#product-empty');
+    const searchEl = explorer.querySelector<HTMLInputElement>('#product-search');
+    const sortEl = explorer.querySelector<HTMLSelectElement>('#product-sort');
+    const clearButtons = [
+      explorer.querySelector<HTMLButtonElement>('#product-clear'),
+      explorer.querySelector<HTMLButtonElement>('#product-clear-2'),
+    ];
+    const checkboxes = Array.from(explorer.querySelectorAll<HTMLInputElement>('input[data-group]'));
+
+    // --- Mobile filter drawer -------------------------------------------
+    const panel = explorer.querySelector<HTMLElement>('#product-filters-panel');
+    const overlay = explorer.querySelector<HTMLElement>('#filter-overlay');
+    const filterToggle = explorer.querySelector<HTMLButtonElement>('#filter-toggle');
+    const filterClose = explorer.querySelector<HTMLButtonElement>('#filter-close');
+    const filterApply = explorer.querySelector<HTMLButtonElement>('#filter-apply');
+    let filtersOpen = false;
+
+    function renderFilters() {
+      if (!panel || !overlay || !filterToggle) return;
+      const desktop = window.matchMedia('(min-width: 1024px)').matches;
+
+      if (desktop) {
+        panel.classList.remove('translate-y-full');
+        panel.removeAttribute('inert');
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+        filterToggle.setAttribute('aria-expanded', 'false');
+        return;
+      }
+
+      if (filtersOpen) {
+        panel.classList.remove('translate-y-full');
+        panel.removeAttribute('inert');
+        overlay.classList.remove('hidden');
+        filterToggle.setAttribute('aria-expanded', 'true');
+      } else {
+        panel.classList.add('translate-y-full');
+        panel.setAttribute('inert', '');
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+        filterToggle.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    function openFilters() {
+      filtersOpen = true;
+      if (window.innerWidth < 1024) document.body.style.overflow = 'hidden';
+      renderFilters();
+    }
+
+    function closeFilters() {
+      filtersOpen = false;
+      renderFilters();
+    }
+
+    filterToggle?.addEventListener('click', openFilters);
+    filterClose?.addEventListener('click', closeFilters);
+    filterApply?.addEventListener('click', closeFilters);
+    overlay?.addEventListener('click', closeFilters);
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && filtersOpen) closeFilters();
+    });
+    window.addEventListener('resize', renderFilters);
+    renderFilters();
+
+    // --- Filtering -------------------------------------------------------
+    const countTemplate = countEl?.dataset.template || '{count} products';
+    const countTemplateOne = countEl?.dataset.templateOne || '1 product';
+
+    function selectedValues() {
+      const map: Record<string, string[]> = {};
+      checkboxes.forEach((cb) => {
+        const group = cb.dataset.group;
+        if (!cb.checked || !group) return;
+        if (!map[group]) map[group] = [];
+        map[group].push(cb.value);
+      });
+      return map;
+    }
+
+    function applyFilters() {
+      const selected = selectedValues();
+      const query = (searchEl?.value || '').trim().toLowerCase();
+      let visible = 0;
+
+      items.forEach((item) => {
+        const id = item.dataset.id || '';
+        const standard = item.dataset.standard || '';
+        const heat = item.dataset.heat || '';
+        const applications = (item.dataset.applications || '').split(',').filter(Boolean);
+
+        let ok = true;
+        if (selected.railProfile && !selected.railProfile.includes(id)) ok = false;
+        if (ok && selected.standard && !selected.standard.includes(standard)) ok = false;
+        if (
+          ok &&
+          selected.application &&
+          !applications.some((app) => selected.application.includes(app))
+        ) {
+          ok = false;
+        }
+        if (ok && selected.heat && !selected.heat.includes(heat)) ok = false;
+        if (ok && query && !(item.dataset.search || '').includes(query)) ok = false;
+
+        item.classList.toggle('hidden', !ok);
+        if (ok) visible += 1;
+      });
+
+      if (countEl) {
+        countEl.textContent =
+          visible === 1 ? countTemplateOne : countTemplate.replace('{count}', String(visible));
+      }
+      emptyEl?.classList.toggle('hidden', visible !== 0);
+    }
+
+    function sortItems() {
+      if (!grid || !sortEl) return;
+      const mode = sortEl.value;
+      const sorted = [...items].sort((a, b) => {
+        if (mode === 'name') {
+          return (a.dataset.name || '').localeCompare(b.dataset.name || '');
+        }
+        return Number(a.dataset.order || 0) - Number(b.dataset.order || 0);
+      });
+      sorted.forEach((item) => grid.appendChild(item));
+    }
+
+    checkboxes.forEach((cb) => cb.addEventListener('change', applyFilters));
+    searchEl?.addEventListener('input', applyFilters);
+    sortEl?.addEventListener('change', () => {
+      sortItems();
+      applyFilters();
+    });
+
+    clearButtons.forEach((button) =>
+      button?.addEventListener('click', () => {
+        checkboxes.forEach((cb) => {
+          cb.checked = false;
+        });
+        if (searchEl) searchEl.value = '';
+        applyFilters();
+      }),
+    );
+  }
+</script>

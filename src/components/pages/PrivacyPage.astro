@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../PageHeader.astro';
+
+import { useTranslations, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = '/privacy';
+---
+
+<BaseLayout title={t('privacyPage.title')} description={t('privacyPage.todo')} path={path} noindex>
+  <PageHeader
+    lang={lang}
+    title={t('privacyPage.title')}
+    breadcrumbs={[{ label: t('common.home'), href: '/' }, { label: t('privacyPage.title') }]}
+  />
+
+  <section class="section">
+    <div class="container-x">
+      <div class="mx-auto max-w-3xl">
+        <p class="text-sm text-steel-500">{t('privacyPage.updated')}</p>
+        <p
+          class="mt-6 border border-dashed border-steel-300 bg-steel-50 p-5 text-sm leading-relaxed text-steel-600"
+        >
+          {t('privacyPage.todo')}
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

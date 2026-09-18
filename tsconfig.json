@@ -1,0 +1,14 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": [
+    "dist",
+    "mainweb",
+    "offline-preview",
+    "攀钢钢轨素材库_20260917",
+    "轨型剖面图"
+  ],
+  "compilerOptions": {
+    "strictNullChecks": true
+  }
+}

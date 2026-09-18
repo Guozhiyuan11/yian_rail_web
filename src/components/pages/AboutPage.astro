@@ -1,0 +1,172 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../PageHeader.astro';
+import SectionHeading from '../SectionHeading.astro';
+import FeatureCard from '../FeatureCard.astro';
+import Icon from '../Icon.astro';
+import type { IconName } from '../icons';
+
+import { useTranslations, localizePath, type Lang } from '../../i18n/ui';
+import { media } from '../../data/media';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = '/about';
+
+const roleItems: { icon: IconName; title: string; description: string }[] = [
+  {
+    icon: 'users',
+    title: t('aboutPage.role.item1.title'),
+    description: t('aboutPage.role.item1.desc'),
+  },
+  {
+    icon: 'gear',
+    title: t('aboutPage.role.item2.title'),
+    description: t('aboutPage.role.item2.desc'),
+  },
+  {
+    icon: 'layers',
+    title: t('aboutPage.role.item3.title'),
+    description: t('aboutPage.role.item3.desc'),
+  },
+  {
+    icon: 'ship',
+    title: t('aboutPage.role.item4.title'),
+    description: t('aboutPage.role.item4.desc'),
+  },
+];
+
+const commitments: { icon: IconName; title: string; description: string }[] = [
+  {
+    icon: 'shield',
+    title: t('aboutPage.commitment.item1.title'),
+    description: t('aboutPage.commitment.item1.desc'),
+  },
+  {
+    icon: 'package',
+    title: t('aboutPage.commitment.item2.title'),
+    description: t('aboutPage.commitment.item2.desc'),
+  },
+  {
+    icon: 'check',
+    title: t('aboutPage.commitment.item3.title'),
+    description: t('aboutPage.commitment.item3.desc'),
+  },
+  {
+    icon: 'globe',
+    title: t('aboutPage.commitment.item4.title'),
+    description: t('aboutPage.commitment.item4.desc'),
+  },
+];
+---
+
+<BaseLayout title={t('aboutPage.title')} description={t('aboutPage.subtitle')} path={path}>
+  <PageHeader
+    lang={lang}
+    index="05"
+    eyebrow={t('aboutPage.eyebrow')}
+    title={t('aboutPage.title')}
+    subtitle={t('aboutPage.subtitle')}
+    breadcrumbs={[{ label: t('common.home'), href: '/' }, { label: t('nav.about') }]}
+  />
+
+  <section class="section">
+    <div class="container-x">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
+        <div>
+          <SectionHeading index="01" title={t('aboutPage.company.title')} />
+          <p class="mt-5 max-w-xl text-[15px] leading-relaxed text-steel-700">
+            {t('aboutPage.company.text')}
+          </p>
+        </div>
+        <img
+          src={media.aboutCompany}
+          alt={t('aboutPage.company.title')}
+          class="h-72 w-full border border-steel-200 object-cover lg:h-[24rem]"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="section border-t border-steel-200 bg-steel-50">
+    <div class="container-x">
+      <SectionHeading index="02" title={t('aboutPage.role.title')} />
+      <ul class="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          roleItems.map((item, i) => (
+            <FeatureCard
+              icon={item.icon}
+              index={String(i + 1).padStart(2, '0')}
+              title={item.title}
+              description={item.description}
+            />
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section border-t border-steel-200 bg-white">
+    <div class="container-x">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
+        <img
+          src={media.aboutPangang}
+          alt={t('aboutPage.pangang.title')}
+          class="h-72 w-full border border-steel-200 object-cover lg:h-[24rem]"
+          loading="lazy"
+          decoding="async"
+        />
+        <div>
+          <SectionHeading index="03" title={t('aboutPage.pangang.title')} />
+          <p class="mt-5 max-w-xl text-[15px] leading-relaxed text-steel-700">
+            {t('aboutPage.pangang.text')}
+          </p>
+          <a href={localizePath('/manufacturing', lang)} class="link-rule mt-6">
+            {t('cta.learnMore')}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section border-t border-steel-200 bg-steel-50">
+    <div class="container-x">
+      <SectionHeading index="04" title={t('aboutPage.commitment.title')} />
+      <ul class="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          commitments.map((item, i) => (
+            <FeatureCard
+              icon={item.icon}
+              index={String(i + 1).padStart(2, '0')}
+              title={item.title}
+              description={item.description}
+            />
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="border-t border-ink-800 bg-ink-900">
+    <div class="container-x py-12 lg:py-14">
+      <div class="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:gap-14">
+        <div class="lg:border-r lg:border-white/12 lg:pr-14">
+          <h2 class="text-white">{t('aboutPage.cta.title')}</h2>
+          <p class="mt-3.5 max-w-lg text-[15px] text-steel-300">{t('aboutPage.cta.text')}</p>
+        </div>
+        <div class="lg:justify-self-end">
+          <a href={localizePath('/contact', lang)} class="btn-primary">
+            <Icon name="send" size={16} />
+            {t('cta.contactUs')}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,33 @@
+---
+import Media from './Media.astro';
+import type { IconName } from './icons';
+
+interface Props {
+  label: string;
+  icon: IconName;
+  image?: string | null;
+  /** Optional sheet index, e.g. "01". */
+  index?: string;
+  /** Short explanation of what this application demands from the rail. */
+  description?: string;
+}
+
+const { label, icon, image, index, description } = Astro.props;
+---
+
+<li class="group border border-steel-200 bg-white transition-colors hover:border-ink-400">
+  <Media
+    src={image}
+    alt={label}
+    aspect="aspect-[4/3]"
+    icon={icon}
+    class="border-b border-steel-200"
+  />
+  <div class="px-3.5 py-3">
+    <div class="flex items-center justify-between gap-2">
+      <span class="text-[13px] font-semibold text-ink-900">{label}</span>
+      {index && <span class="text-[10px] tracking-[0.16em] text-steel-400">{index}</span>}
+    </div>
+    {description && <p class="mt-1.5 text-[11.5px] leading-snug text-steel-600">{description}</p>}
+  </div>
+</li>

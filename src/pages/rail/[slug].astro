@@ -1,0 +1,15 @@
+---
+import RailDetail from '../../components/pages/RailDetail.astro';
+import { publishedRails } from '../../data/rails';
+
+export function getStaticPaths() {
+  return publishedRails.map((product) => ({
+    params: { slug: product.slug },
+    props: { product },
+  }));
+}
+
+const { product } = Astro.props;
+---
+
+<RailDetail product={product} lang="en" />

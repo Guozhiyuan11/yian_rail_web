@@ -1,0 +1,61 @@
+---
+import type { Lang } from '../i18n/ui';
+import { useTranslations, localizePath } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** 'light' = for white backgrounds (header), 'dark' = for navy (footer). */
+  variant?: 'light' | 'dark';
+  showTagline?: boolean;
+}
+
+const { lang, variant = 'light', showTagline = false } = Astro.props;
+const t = useTranslations(lang);
+const isDark = variant === 'dark';
+---
+
+<a
+  href={localizePath('/', lang)}
+  class="inline-flex items-center gap-2.5"
+  aria-label={t('brand.nameUpper')}
+>
+  <!-- Stylised rail cross-section mark -->
+  <svg
+    width="34"
+    height="34"
+    viewBox="0 0 32 32"
+    class="shrink-0"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <rect width="32" height="32" rx="0" fill={isDark ? '#ffffff' : '#14181b'}></rect>
+    <path
+      d="M9.5 7h13v3.6h-4.6v10.8h4.6V25h-13v-3.6h4.6V10.6H9.5z"
+      fill={isDark ? '#14181b' : '#ffffff'}></path>
+    <rect x="9.5" y="25.4" width="13" height="1.6" rx="0.8" fill="#b45309"></rect>
+  </svg>
+
+  <span class="flex flex-col leading-none">
+    <span
+      class:list={[
+        'whitespace-nowrap font-bold uppercase tracking-[0.06em]',
+        showTagline ? 'text-[15px]' : 'text-[13.5px] sm:text-base',
+        isDark ? 'text-white' : 'text-ink-900',
+      ]}
+    >
+      {t('brand.nameUpper')}
+    </span>
+    {
+      showTagline && (
+        <span
+          class:list={[
+            'mt-1 text-[10px] font-medium uppercase tracking-[0.16em]',
+            isDark ? 'text-steel-300' : 'text-steel-500',
+          ]}
+        >
+          {t('brand.claim')}
+        </span>
+      )
+    }
+  </span>
+</a>

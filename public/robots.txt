@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Do not index client-side filter query strings as separate pages.
+Disallow: /*?*filter=
+
+Sitemap: https://rail.yiantechglobal.com/sitemap-index.xml

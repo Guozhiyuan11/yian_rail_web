@@ -1,0 +1,194 @@
+---
+import type { Lang } from '../i18n/ui';
+import { useTranslations, localizePath } from '../i18n/ui';
+import { site, isDev } from '../utils/site';
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const quickLinks = [
+  { href: '/', key: 'nav.home' },
+  { href: '/rail-products', key: 'nav.railProducts' },
+  { href: '/applications', key: 'nav.applications' },
+  { href: '/projects', key: 'nav.projects' },
+  { href: '/manufacturing', key: 'nav.manufacturing' },
+  { href: '/export-delivery', key: 'nav.exportDelivery' },
+  { href: '/about', key: 'nav.about' },
+  { href: '/contact', key: 'nav.contact' },
+] as const;
+
+const socials = [
+  { key: 'linkedin', href: site.social.linkedin },
+  { key: 'youtube', href: site.social.youtube },
+  { key: 'x', href: site.social.x },
+] as const;
+const visibleSocials = socials.filter((s) => s.href);
+
+const whatsappHref = site.contact.whatsappHref;
+---
+
+<footer class="bg-ink-950 text-steel-400">
+  <div class="container-x py-12 lg:py-14">
+    <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+      <!-- Brand -->
+      <div class="lg:border-r lg:border-white/10 lg:pr-8">
+        <Logo lang={lang} variant="dark" showTagline />
+        <p class="mt-5 max-w-xs text-[13px] leading-relaxed text-steel-500">
+          {t('brand.tagline')}
+        </p>
+        <p class="mt-4 text-[10px] uppercase tracking-[0.14em] text-steel-600">
+          {t('brand.values')}
+        </p>
+      </div>
+
+      <!-- Quick links -->
+      <nav aria-labelledby="footer-quick-links">
+        <h2 id="footer-quick-links" class="text-[10px] uppercase tracking-[0.16em] text-white">
+          {t('footer.quickLinks')}
+        </h2>
+        <ul class="mt-4 flex flex-col">
+          {
+            quickLinks.map((link) => (
+              <li>
+                <a
+                  href={localizePath(link.href, lang)}
+                  class="block border-b border-white/8 py-2 text-[13px] text-steel-400 transition-colors hover:text-white"
+                >
+                  {t(link.key)}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <!-- Contact -->
+      <div class="lg:border-l lg:border-white/10 lg:pl-8">
+        <h2 class="text-[10px] uppercase tracking-[0.16em] text-white">
+          {t('footer.contactUs')}
+        </h2>
+        <ul class="mt-4 flex flex-col gap-3.5 text-[13px]">
+          <li class="flex items-start gap-2.5">
+            <Icon name="mail" size={15} class="mt-1 shrink-0 text-accent-500" />
+            <a
+              href={`mailto:${site.contact.email}`}
+              class="break-all text-[12px] text-steel-400 transition-colors hover:text-white"
+            >
+              {site.contact.email}
+            </a>
+          </li>
+
+          {
+            whatsappHref && site.contact.whatsapp ? (
+              <li class="flex items-start gap-2.5">
+                <Icon name="whatsapp" size={15} class="mt-1 shrink-0 text-accent-500" />
+                <a
+                  href={whatsappHref}
+                  class="text-[12px] text-steel-400 transition-colors hover:text-white"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  {site.contact.whatsapp}
+                </a>
+              </li>
+            ) : isDev ? (
+              <li class="flex items-start gap-2.5 text-steel-600">
+                <Icon name="whatsapp" size={15} class="mt-1 shrink-0" />
+                <span class="text-[10px] uppercase tracking-[0.1em]">{t('common.todo')}</span>
+              </li>
+            ) : null
+          }
+
+          {
+            site.contact.address ? (
+              <li class="flex items-start gap-2.5">
+                <Icon name="pin" size={15} class="mt-1 shrink-0 text-accent-500" />
+                <span>{site.contact.address}</span>
+              </li>
+            ) : isDev ? (
+              <li class="flex items-start gap-2.5 text-steel-600">
+                <Icon name="pin" size={15} class="mt-1 shrink-0" />
+                <span class="text-[10px] uppercase tracking-[0.1em]">{t('common.todo')}</span>
+              </li>
+            ) : null
+          }
+        </ul>
+
+        <h2 class="mt-7 text-[10px] uppercase tracking-[0.16em] text-white">
+          {t('footer.followUs')}
+        </h2>
+        {
+          visibleSocials.length > 0 ? (
+            <ul class="mt-3 flex gap-2">
+              {visibleSocials.map((social) => (
+                <li>
+                  <a
+                    href={social.href as string}
+                    class="inline-flex h-9 w-9 items-center justify-center border border-white/20 text-steel-400 transition-colors hover:border-white hover:text-white"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <Icon name={social.key} size={15} />
+                    <span class="sr-only">{social.key}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : isDev ? (
+            <p class="mt-3 text-[10px] uppercase tracking-[0.1em] text-steel-600">
+              {t('common.todo')}
+            </p>
+          ) : null
+        }
+      </div>
+
+      <!-- Standards note -->
+      <div class="lg:border-l lg:border-white/10 lg:pl-8">
+        <h2 class="text-[10px] uppercase tracking-[0.16em] text-white">
+          {t('home.standards.standardsLabel')}
+        </h2>
+        <ul class="mt-4 grid grid-cols-3 gap-px bg-white/10">
+          {
+            ['AREMA', 'EN', 'UIC', 'BS', 'AS', 'TB'].map((s) => (
+              <li class="bg-ink-950 py-2 text-center text-[11px] text-steel-400" translate="no">
+                {s}
+              </li>
+            ))
+          }
+        </ul>
+        <a href={localizePath('/rail-products', lang)} class="link-rule-dark mt-5">
+          {t('cta.viewRailProducts')}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div
+      class="container-x flex flex-col gap-3 py-5 text-[10px] uppercase tracking-[0.12em] text-steel-600 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>{t('footer.rights')}</p>
+      <ul class="flex gap-6">
+        <li>
+          <a
+            href={localizePath('/privacy', lang)}
+            class="text-steel-500 transition-colors hover:text-white"
+          >
+            {t('footer.privacy')}
+          </a>
+        </li>
+        <li>
+          <a href="#" class="text-steel-500 transition-colors hover:text-white">
+            {t('footer.terms')}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>

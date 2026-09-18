@@ -1,0 +1,137 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../PageHeader.astro';
+import SectionHeading from '../SectionHeading.astro';
+import DocumentCard from '../DocumentCard.astro';
+import Icon from '../Icon.astro';
+import type { IconName } from '../icons';
+
+import { useTranslations, localizePath, type Lang } from '../../i18n/ui';
+import { media } from '../../data/media';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = '/export-delivery';
+
+const capabilities: { icon: IconName; title: string; description: string }[] = [
+  {
+    icon: 'clipboard',
+    title: t('home.export.item1.title'),
+    description: t('home.export.item1.desc'),
+  },
+  {
+    icon: 'package',
+    title: t('home.export.item2.title'),
+    description: t('home.export.item2.desc'),
+  },
+  { icon: 'doc', title: t('home.export.item3.title'), description: t('home.export.item3.desc') },
+  { icon: 'truck', title: t('home.export.item4.title'), description: t('home.export.item4.desc') },
+  { icon: 'pin', title: t('home.export.item5.title'), description: t('home.export.item5.desc') },
+  { icon: 'ship', title: t('exportPage.shipment.title'), description: t('home.export.item3.desc') },
+];
+---
+
+<BaseLayout title={t('exportPage.title')} description={t('exportPage.subtitle')} path={path}>
+  <PageHeader
+    lang={lang}
+    index="03"
+    eyebrow={t('exportPage.eyebrow')}
+    title={t('exportPage.title')}
+    subtitle={t('exportPage.subtitle')}
+    breadcrumbs={[{ label: t('common.home'), href: '/' }, { label: t('nav.exportDelivery') }]}
+  />
+
+  <section class="border-b border-steel-200 bg-white py-10 lg:py-14">
+    <div class="container-x">
+      <p class="max-w-4xl text-[15px] leading-relaxed text-steel-600">{t('exportPage.intro')}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container-x">
+      <SectionHeading
+        index="01"
+        title={t('exportPage.capabilities.title')}
+        subtitle={t('exportPage.subtitle')}
+      />
+      <ul class="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          capabilities.map((item) => (
+            <DocumentCard icon={item.icon} title={item.title} description={item.description} />
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section border-t border-steel-200 bg-steel-50">
+    <div class="container-x">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
+        <img
+          src={media.exportShipment}
+          alt={t('exportPage.shipment.title')}
+          class="h-72 w-full border border-steel-200 object-cover lg:h-[26rem]"
+          loading="lazy"
+          decoding="async"
+        />
+        <div>
+          <SectionHeading
+            index="02"
+            title={t('exportPage.shipment.title')}
+            subtitle={t('exportPage.shipment.text')}
+          />
+          <ul class="mt-6 border-t border-steel-200">
+            {
+              capabilities.slice(0, 4).map((item) => (
+                <li class="flex items-center gap-3 border-b border-steel-200 py-3 text-[13.5px] text-steel-700">
+                  <Icon name="check" size={14} strokeWidth={2.6} class="shrink-0 text-accent-600" />
+                  {item.title}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Packaging, storage and loading -->
+  <section class="section border-t border-steel-200 bg-white">
+    <div class="container-x">
+      <SectionHeading index="03" title={t('exportPage.galleryTitle')} />
+      <ul class="mt-9 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {
+          media.exportGallery.map((src, i) => (
+            <li>
+              <img
+                src={src}
+                alt={`${t('exportPage.galleryTitle')} ${i + 1}`}
+                class="h-40 w-full border border-steel-200 object-cover lg:h-52"
+                loading="lazy"
+                decoding="async"
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="border-t border-ink-800 bg-ink-900">
+    <div class="container-x py-12 lg:py-14">
+      <div class="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:gap-14">
+        <div class="lg:border-r lg:border-white/12 lg:pr-14">
+          <h2 class="text-white">{t('exportPage.cta.title')}</h2>
+          <p class="mt-3.5 max-w-lg text-[15px] text-steel-300">{t('exportPage.cta.text')}</p>
+        </div>
+        <div class="lg:justify-self-end">
+          <a href={localizePath('/contact', lang)} class="btn-primary">{t('cta.requestQuote')}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,36 @@
+---
+export interface Evidence {
+  image: string;
+  alt: string;
+  step: string;
+  title: string;
+  text: string;
+}
+
+interface Props {
+  items: Evidence[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="grid grid-cols-2 border-t border-l border-steel-200 sm:grid-cols-3 lg:grid-cols-5">
+  {
+    items.map((item) => (
+      <li class="border-r border-b border-steel-200 bg-white">
+        <img
+          src={item.image}
+          alt={item.alt}
+          class="h-36 w-full object-cover lg:h-44"
+          loading="lazy"
+          decoding="async"
+        />
+        <div class="p-4">
+          <span class="text-[10px] tracking-[0.16em] text-steel-400">{item.step}</span>
+          <h3 class="mt-1.5 text-[13.5px] font-semibold text-ink-900">{item.title}</h3>
+          <p class="mt-1.5 text-[12.5px] leading-snug text-steel-600">{item.text}</p>
+        </div>
+      </li>
+    ))
+  }
+</ul>

@@ -1,0 +1,190 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../PageHeader.astro';
+import SectionHeading from '../SectionHeading.astro';
+import DocumentCard from '../DocumentCard.astro';
+import ProcessSteps from '../ProcessSteps.astro';
+import Icon from '../Icon.astro';
+import type { IconName } from '../icons';
+
+import { useTranslations, localizePath, type Lang } from '../../i18n/ui';
+import { media } from '../../data/media';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = '/manufacturing';
+
+const processItems: { icon: IconName; title: string; description: string }[] = [
+  { icon: 'factory', title: t('home.mfg.item1.title'), description: t('home.mfg.item1.long') },
+  { icon: 'flame', title: t('home.mfg.item2.title'), description: t('home.mfg.item2.long') },
+  { icon: 'eye', title: t('home.mfg.item3.title'), description: t('home.mfg.item3.long') },
+  { icon: 'beaker', title: t('home.mfg.item4.title'), description: t('home.mfg.item4.long') },
+  { icon: 'doc', title: t('home.mfg.item5.title'), description: t('home.mfg.item5.long') },
+];
+
+const steps = [
+  { title: t('home.process.step1.title'), description: t('home.process.step1.desc') },
+  { title: t('home.process.step2.title'), description: t('home.process.step2.desc') },
+  { title: t('home.process.step3.title'), description: t('home.process.step3.desc') },
+  { title: t('home.process.step4.title'), description: t('home.process.step4.desc') },
+];
+---
+
+<BaseLayout title={t('mfgPage.title')} description={t('mfgPage.subtitle')} path={path}>
+  <PageHeader
+    lang={lang}
+    index="02"
+    eyebrow={t('mfgPage.eyebrow')}
+    title={t('mfgPage.title')}
+    subtitle={t('mfgPage.subtitle')}
+    breadcrumbs={[{ label: t('common.home'), href: '/' }, { label: t('nav.manufacturing') }]}
+  />
+
+  <!-- How rail is made -->
+  <section class="border-b border-steel-200 bg-white py-10 lg:py-14">
+    <div class="container-x">
+      <p class="max-w-4xl text-[15px] leading-relaxed text-steel-600">{t('mfgPage.intro')}</p>
+    </div>
+  </section>
+
+  <!-- Manufacturing process -->
+  <section class="section">
+    <div class="container-x">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-14">
+        <img
+          src={media.manufacturingProcess}
+          alt={t('mfgPage.process.title')}
+          class="h-72 w-full border border-steel-200 object-cover lg:h-[30rem]"
+          loading="lazy"
+          decoding="async"
+        />
+        <div>
+          <SectionHeading
+            index="01"
+            title={t('mfgPage.process.title')}
+            subtitle={t('mfgPage.process.text')}
+          />
+          <ul class="mt-6 border-t border-steel-200">
+            {
+              processItems.map((item, i) => (
+                <li class="flex items-start gap-4 border-b border-steel-200 py-4">
+                  <span class="text-[11px] tracking-[0.18em] text-steel-400">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center border border-steel-200 text-ink-700">
+                    <Icon name={item.icon} size={16} />
+                  </span>
+                  <div>
+                    <span class="block text-[14px] font-semibold text-ink-900">{item.title}</span>
+                    <span class="mt-0.5 block text-[13px] leading-relaxed text-steel-600">
+                      {item.description}
+                    </span>
+                  </div>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quality assurance -->
+  <section class="section border-t border-steel-200 bg-steel-50">
+    <div class="container-x">
+      <SectionHeading
+        index="02"
+        eyebrow={t('mfgPage.eyebrow')}
+        title={t('mfgPage.quality.title')}
+        subtitle={t('mfgPage.quality.text')}
+      />
+      <ul class="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <DocumentCard
+          icon="clipboard"
+          title={t('detail.quality.millTest.title')}
+          description={t('detail.quality.millTest.desc')}
+        />
+        <DocumentCard
+          icon="eye"
+          title={t('detail.quality.inspection.title')}
+          description={t('detail.quality.inspection.desc')}
+        />
+        <DocumentCard
+          icon="beaker"
+          title={t('home.mfg.item4.title')}
+          description={t('home.mfg.item4.desc')}
+        />
+        <DocumentCard
+          icon="shield"
+          title={t('detail.quality.thirdParty.title')}
+          description={t('detail.quality.thirdParty.desc')}
+        />
+        <DocumentCard
+          icon="package"
+          title={t('detail.quality.packaging.title')}
+          description={t('detail.quality.packaging.desc')}
+        />
+        <DocumentCard
+          icon="doc"
+          title={t('detail.quality.exportDocs.title')}
+          description={t('detail.quality.exportDocs.desc')}
+        />
+      </ul>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="section border-t border-steel-200 bg-white">
+    <div class="container-x">
+      <SectionHeading index="03" title={t('mfgPage.gallery.title')} />
+      <ul class="mt-9 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {
+          media.manufacturingGallery.map((src, i) => (
+            <li>
+              <img
+                src={src}
+                alt={`${t('mfgPage.gallery.title')} ${i + 1}`}
+                class="h-40 w-full border border-steel-200 object-cover lg:h-52"
+                loading="lazy"
+                decoding="async"
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Cooperation process -->
+  <section class="section border-t border-steel-200 bg-steel-50">
+    <div class="container-x">
+      <SectionHeading
+        index="04"
+        eyebrow={t('home.process.eyebrow')}
+        title={t('home.process.title')}
+      />
+      <div class="mt-9">
+        <ProcessSteps steps={steps} />
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="border-t border-ink-800 bg-ink-900">
+    <div class="container-x py-12 lg:py-14">
+      <div class="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:gap-14">
+        <div class="lg:border-r lg:border-white/12 lg:pr-14">
+          <h2 class="text-white">{t('mfgPage.cta.title')}</h2>
+          <p class="mt-3.5 max-w-lg text-[15px] text-steel-300">{t('mfgPage.cta.text')}</p>
+        </div>
+        <div class="lg:justify-self-end">
+          <a href={localizePath('/contact', lang)} class="btn-primary">{t('cta.requestQuote')}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

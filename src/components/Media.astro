@@ -1,0 +1,53 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from './icons';
+
+interface Props {
+  /** Optional image path (under /public). Falls back to a neutral placeholder. */
+  src?: string | null;
+  alt: string;
+  /** Wrapper classes (aspect ratio, borders, etc.). */
+  class?: string;
+  imgClass?: string;
+  /** Tailwind aspect utility, e.g. 'aspect-[16/9]'. */
+  aspect?: string;
+  icon?: IconName;
+  loading?: 'lazy' | 'eager';
+  /** How the image fills its box. Use 'contain' for technical drawings. */
+  fit?: 'cover' | 'contain';
+}
+
+const {
+  src,
+  alt,
+  class: className = '',
+  imgClass = '',
+  aspect = 'aspect-[16/9]',
+  icon = 'factory',
+  loading = 'lazy',
+  fit = 'cover',
+} = Astro.props;
+---
+
+<div class:list={[aspect, 'relative overflow-hidden bg-white', className]}>
+  {
+    src ? (
+      <img
+        src={src}
+        alt={alt}
+        loading={loading}
+        decoding="async"
+        class:list={[
+          'h-full w-full',
+          fit === 'contain' ? 'object-contain' : 'object-cover',
+          imgClass,
+        ]}
+      />
+    ) : (
+      <div class="bg-grid-light flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center">
+        <Icon name={icon} size={26} class="text-steel-400" />
+        <span class="text-[10px] uppercase tracking-[0.14em] text-steel-400">{alt}</span>
+      </div>
+    )
+  }
+</div>

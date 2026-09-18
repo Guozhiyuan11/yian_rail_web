@@ -1,0 +1,53 @@
+---
+import { useTranslations, localizePath, type Lang } from '../i18n/ui';
+import { site } from '../utils/site';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  text?: string;
+  eyebrow?: string;
+}
+
+const { lang, title, text, eyebrow } = Astro.props;
+const t = useTranslations(lang);
+
+const quoteHref = localizePath('/contact', lang);
+const whatsappHref = site.contact.whatsappHref;
+---
+
+<section class="bg-ink-900">
+  <div class="container-x py-12 lg:py-14">
+    <div class="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:gap-14">
+      <div class="lg:border-r lg:border-white/12 lg:pr-14">
+        {eyebrow && <p class="eyebrow eyebrow-light">{eyebrow}</p>}
+        <h2 class:list={['text-white', eyebrow && 'mt-4']}>{title}</h2>
+        {text && <p class="mt-3.5 max-w-lg text-[15px] leading-relaxed text-steel-300">{text}</p>}
+      </div>
+
+      <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
+        <a href={quoteHref} class="btn-primary">{t('cta.requestQuote')}</a>
+
+        <a href={`mailto:${site.contact.email}`} class="btn-outline-light">
+          <Icon name="mail" size={16} />
+          {t('cta.emailUs')}
+        </a>
+
+        {
+          whatsappHref && (
+            <a
+              href={whatsappHref}
+              class="btn-outline-light"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon name="whatsapp" size={16} />
+              {t('cta.whatsapp')}
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>
